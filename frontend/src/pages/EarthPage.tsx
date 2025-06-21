@@ -271,7 +271,7 @@ const EarthPage: React.FC = () => {
               </CardContent>
             </Card>
           </Box>
-          <Box sx={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: 0, position: 'relative', height: '100vh' }}>
+          <Box sx={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: 0, position: 'relative', height: '100vh', mt:-10 }}>
             <Earth3D
               events={[]}
               neos={neos}
@@ -282,21 +282,25 @@ const EarthPage: React.FC = () => {
           </Box>
         </SectionContainer>
         
+
+        {/* mars rover selection */}
         <SectionContainer sx={{
           minHeight: '100vh',
-          backgroundImage: 'url(https://images-assets.nasa.gov/image/PIA19808/PIA19808~orig.jpg)',
+          backgroundImage: 'url(/images/marssurface.png)',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
-          position: 'relative',
+          
         }}>
-          <Box sx={{ position: 'absolute', inset: 0, background: 'rgba(60,30,10,0.7)', zIndex: 1 }} />
-          <Box sx={{ position: 'relative', zIndex: 2, width: '100%', maxWidth: 1200, p: 4 }}>
-            <Typography variant="h3" color="primary" textAlign="center" gutterBottom>
+          {/* <Box sx={{ position: 'absolute', inset: 0, background: 'rgba(60,30,10,0.7)', zIndex: 1 }} /> */}
+            <Box sx={{ position: 'absolute', top: 40, left: 0, right: 0, zIndex: 2 }}>
+            <Typography variant="h3" color="primary" textAlign="center" gutterBottom >
               Mars Rover Gallery
             </Typography>
-            <Typography variant="body1" color="text.secondary" textAlign="center" sx={{ mb: 4 }}>
+            <Typography variant="body1" color="text.secondary" textAlign="center" >
               Click a rover to explore its mission, stats, and photos from Mars.
             </Typography>
+            </Box>
+          <Box sx={{ position: 'relative', zIndex: 2, width: '100%', p: 4, mt: 5 }}>
             <MarsRoverSelector />
           </Box>
         </SectionContainer>

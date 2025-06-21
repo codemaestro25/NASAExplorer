@@ -10,7 +10,7 @@ const EarthContainer = styled(Box)(({ theme }) => ({
   width: '100%',
   height: '100vh',
   position: 'relative',
-  background: 'linear-gradient(135deg, #0A0A0F 0%, #1A1A2E 50%, #16213E 100%)',
+  // background: 'linear-gradient(135deg, #0A0A0F 0%, #1A1A2E 50%, #16213E 100%)',
 }));
 
 interface Earth3DProps {
@@ -171,10 +171,10 @@ const EarthScene: React.FC<Earth3DProps> = ({ events, neos, onEventClick, onNEOC
                             backdropFilter: 'blur(10px)',
                           }}
                         >
-                          <Typography variant="subtitle2" color="primary">
+                          <Typography variant="subtitle2" color="primary" sx={{fontWeight: 'bold'}} >
                             {event.title}
                           </Typography>
-                          <Typography variant="caption" color="text.secondary">
+                          <Typography variant="caption" color="white" sx={{mt: 3}}>
                             {event.categories[0]?.title}
                           </Typography>
                         </Box>
@@ -227,13 +227,13 @@ const EarthScene: React.FC<Earth3DProps> = ({ events, neos, onEventClick, onNEOC
           })}
         </group>
       </group>
-      <CameraControls />
+      <CameraControls isEarthHovered={isEarthHovered} />
     </>
   );
 };
 
 // Camera controls component
-const CameraControls: React.FC = () => {
+const CameraControls: React.FC<{ isEarthHovered: boolean }> = ({ isEarthHovered }) => {
   const { camera } = useThree();
   useEffect(() => {
     camera.position.set(0, 0, 3);
@@ -242,10 +242,10 @@ const CameraControls: React.FC = () => {
   return (
     <OrbitControls
       enablePan={true}
-      enableZoom={false}
+      enableZoom={isEarthHovered} // zoom only when the earth is hovered
       enableRotate={true}
-      minDistance={1.5}
-      maxDistance={10}
+      minDistance={2}
+      maxDistance={5}
       autoRotate={false}
       autoRotateSpeed={0.5}
     />
