@@ -35,11 +35,18 @@ const latLonToVector3 = (lat: number, lon: number, radius: number = 1) => {
 const EarthScene: React.FC<Earth3DProps> = ({ events, neos, onEventClick, onNEOClick, scrollProgress, rotationSpeed = 0.1 }) => {
   const [hoveredEvent, setHoveredEvent] = useState<EONETEvent | null>(null);
   const [hoveredNEO, setHoveredNEO] = useState<any | null>(null);
-  const meshRef = React.useRef<THREE.Mesh>(null);
+  const [isEarthHovered, setIsEarthHovered] = useState(false);
+  const earthGroupRef = React.useRef<THREE.Group>(null);
   const neosGroupRef = React.useRef<THREE.Group>(null);
 
-  useFrame(() => {
-    if (meshRef.current) meshRef.current.rotation.y += rotationSpeed * 0.001;
+  useFrame((state, delta) => {
+    // Default rotation speed when not hovered
+    const defaultRotationSpeed = 0.5;
+    const currentRotationSpeed = isEarthHovered ? 0 : defaultRotationSpeed;
+    
+    if (earthGroupRef.current) {
+      earthGroupRef.current.rotation.y += currentRotationSpeed * 0.002;
+    }
     if (neosGroupRef.current) neosGroupRef.current.rotation.y += rotationSpeed * 0.0001;
   });
 
@@ -52,11 +59,19 @@ const EarthScene: React.FC<Earth3DProps> = ({ events, neos, onEventClick, onNEOC
       <ambientLight intensity={0.3} />
       <directionalLight position={[5, 3, 5]} intensity={1} />
       <Stars radius={100} depth={50} count={2000} factor={2} fade speed={1} />
+      
       {/* Earth sphere */}
-      <group scale={earthScale} position={[0, earthY, 0]}>
-        <mesh ref={meshRef}>
+      <group ref={earthGroupRef} scale={earthScale} position={[0, earthY, 0]}>
+        <mesh 
+          onPointerOver={() => setIsEarthHovered(true)}
+          onPointerOut={() => setIsEarthHovered(false)}
+          rotation={[0, 0, 0]}
+        >
           <sphereGeometry args={[1, 64, 64]} />
-          <meshPhongMaterial color="#4A90E2" opacity={0.8} />
+          <meshPhongMaterial 
+            color={isEarthHovered ? "#7BB3F0" : "#4A90E2"} 
+            opacity={0.8} 
+          />
         </mesh>
         {/* Atmosphere glow */}
         <mesh>
@@ -190,7 +205,7 @@ const CameraControls: React.FC = () => {
       enableRotate={true}
       minDistance={1.5}
       maxDistance={10}
-      autoRotate={true}
+      autoRotate={false}
       autoRotateSpeed={0.5}
     />
   );

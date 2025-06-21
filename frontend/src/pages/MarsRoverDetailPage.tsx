@@ -29,7 +29,7 @@ const SectionContainer = styled(Box)(({ theme }) => ({
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'center',
-  justifyContent: 'flex-start',
+  justifyContent: 'space-between',
   position: 'relative',
   padding: theme.spacing(4, 0),
   '&::before': {
@@ -54,7 +54,7 @@ const InfoCard = styled(Card)(({ theme }) => ({
   color: '#fff',
   height: '100%',
   border: '1px solid rgba(74, 144, 226, 0.25)',
-  borderRadius: theme.shape.borderRadius * 1.5,
+  borderRadius: (theme.shape.borderRadius as number) * 1.5,
 }));
 
 const PhotoCard = styled(Card)(({ theme }) => ({
@@ -82,7 +82,7 @@ function RoverModel({ url, roverId }: { url: string; roverId: string }) {
     <group>
       <primitive 
         object={scene} 
-        scale={0.5} 
+        scale={1} 
         position={[0, -0.5, 0]} 
         rotation={[0, Math.PI / 4, 0]} // Add some rotation for better initial view
       />
@@ -135,6 +135,28 @@ const roverCameraData: Record<string, { name: string; full_name: string }[]> = {
     { name: 'MINITES', full_name: 'Miniature Thermal Emission Spectrometer (Mini-TES)' },
   ],
 };
+
+// New reusable component for the manifest cards
+interface ManifestCardProps {
+  label: string;
+  children: React.ReactNode;
+  xs?: number;
+  sm?: number;
+}
+
+// cards for the manifest data
+const ManifestCard: React.FC<ManifestCardProps> = ({ label, children, xs = 12, sm }) => (
+  <Grid item xs={xs} sm={sm}>
+    <InfoCard>
+      <CardContent>
+        <Typography variant="subtitle2" color="text.secondary" gutterBottom>
+          {label}
+        </Typography>
+        {children}
+      </CardContent>
+    </InfoCard>
+  </Grid>
+);
 
 const MarsRoverDetailPage: React.FC = () => {
   const { roverId } = useParams<{ roverId: string }>();
@@ -211,84 +233,69 @@ const MarsRoverDetailPage: React.FC = () => {
   return (
     <Layout title={`Mars Rover: ${roverId?.charAt(0).toUpperCase() + (roverId?.slice(1) ?? '')}` }>
       <SectionContainer>
-        <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 4, width: '100%', maxWidth: 1400, zIndex: 2 }}>
+        <Box sx={{ 
+          display: 'flex',
+          justifyContent: 'space-between',
+          flexDirection: { xs: 'column', md: 'row' }, 
+          // gap: 4, 
+          width: '100%', 
+          minWidth: '100vw',
+          mx: 'auto',
+          px: { xs: 2, md: 4 },
+          zIndex: 2
+        }}>
 
           {/* Left: Rover Stats */}
-          <Box sx={{ width: { xs: '100%', md: '33.33%' } }}>
+          <Box sx={{ width: { xs: '100%', md: '35%' } }}>
             <Typography variant="h4" color="primary" gutterBottom sx={{ mb: 3 }}>
               Mission Manifest
             </Typography>
             {manifest ? (
               <Grid container spacing={2}>
-                <Grid item xs={12}>
-                  <InfoCard>
-                    <CardContent>
-                      <Typography variant="subtitle2" color="text.secondary">Rover</Typography>
-                      <Typography variant="h5">{manifest.name}</Typography>
-                    </CardContent>
-                  </InfoCard>
-                </Grid>
-                <Grid item xs={6}>
-                  <InfoCard>
-                    <CardContent>
-                      <Typography variant="subtitle2" color="text.secondary">Status</Typography>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <FiberManualRecord
-                          fontSize="small"
-                          sx={{ color: manifest.status === 'active' ? 'success.main' : 'error.main' }}
-                        />
-                        <Typography variant="h6">{manifest.status}</Typography>
-                      </Box>
-                    </CardContent>
-                  </InfoCard>
-                </Grid>
-                <Grid item xs={6}>
-                  <InfoCard>
-                    <CardContent>
-                      <Typography variant="subtitle2" color="text.secondary">Total Photos</Typography>
-                      <Typography variant="h6">{manifest.total_photos.toLocaleString()}</Typography>
-                    </CardContent>
-                  </InfoCard>
-                </Grid>
-                <Grid item xs={12}>
-                  <InfoCard>
-                    <CardContent>
-                      <Typography variant="subtitle2" color="text.secondary">Mission Timeline</Typography>
-                      <Typography><b>Launched:</b> {manifest.launch_date}</Typography>
-                      <Typography><b>Landed:</b> {manifest.landing_date}</Typography>
-                    </CardContent>
-                  </InfoCard>
-                </Grid>
-                <Grid item xs={12}>
-                  <InfoCard>
-                    <CardContent>
-                      <Typography variant="subtitle2" color="text.secondary">Photo Span</Typography>
-                      <Typography><b>Last Photo:</b> {manifest.max_date}</Typography>
-                      <Typography><b>Mars Sol:</b> {manifest.max_sol}</Typography>
-                    </CardContent>
-                  </InfoCard>
-                </Grid>
-                <Grid item xs={12}>
-                  <InfoCard>
-                    <CardContent>
-                      <Typography variant="subtitle2" color="text.secondary">Available Cameras</Typography>
-                      {availableCameras.map((c: any) => (
-                        <Typography key={c.name} variant="body2">{c.full_name}</Typography>
-                      ))}
-                    </CardContent>
-                  </InfoCard>
-                </Grid>
+                <ManifestCard label="Rover">
+                  <Typography variant="h5">{manifest.name}</Typography>
+                </ManifestCard>
+
+                <ManifestCard label="Status" sm={6}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <FiberManualRecord
+                      fontSize="small"
+                      sx={{ color: manifest.status === 'active' ? 'success.main' : 'error.main' }}
+                    />
+                    <Typography variant="h6">{manifest.status}</Typography>
+                  </Box>
+                </ManifestCard>
+
+                <ManifestCard label="Total Photos" sm={6}>
+                  <Typography variant="h6">{manifest.total_photos.toLocaleString()}</Typography>
+                </ManifestCard>
+
+                <ManifestCard label="Mission Timeline">
+                  <Typography><b>Launched:</b> {manifest.launch_date}</Typography>
+                  <Typography><b>Landed:</b> {manifest.landing_date}</Typography>
+                </ManifestCard>
+
+                <ManifestCard label="Photo Span">
+                  <Typography><b>Last Photo:</b> {manifest.max_date}</Typography>
+                  <Typography><b>Mars Sol:</b> {manifest.max_sol}</Typography>
+                </ManifestCard>
+
+                <ManifestCard label="Available Cameras">
+                  {availableCameras.map((c: any) => (
+                    <Typography key={c.name} variant="body2">{c.full_name}</Typography>
+                  ))}
+                </ManifestCard>
               </Grid>
             ) : (
-              <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+              <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', minHeight: '500px' }}>
                 {loading ? <CircularProgress /> : error ? <Alert severity="error">{error}</Alert> : null}
               </Box>
             )}
           </Box>
 
           {/* Right: 3D Model */}
-          <Box sx={{ width: { xs: '100%', md: '66.67%' }, position: 'sticky', top: '100px', height: 'fit-content' }}>
-            <Box sx={{ width: '100%', height: 500, background: 'rgba(26,26,46,0.7)', borderRadius: 4, boxShadow: 6 }}>
+          <Box sx={{ width: { xs: '100%', md: '65%' }, top: '100px' }}>
+            <Box sx={{ width: '100%', height: { xs: 500, md: 600 }, background: 'rgba(26,26,46,0.7)', borderRadius: 4, boxShadow: 6 }}>
               <Canvas camera={{ position: [2.5, 1.5, 2.5], fov: 50 }} style={{ width: '100%', height: '100%' }}>
                 <ambientLight intensity={0.7} />
                 <directionalLight position={[5, 3, 5]} intensity={1} />
@@ -299,7 +306,14 @@ const MarsRoverDetailPage: React.FC = () => {
           </Box>
         </Box>
         {/* Below: Photo Gallery */}
-        <Box sx={{ width: '100%', maxWidth: 1200, mt: 6, zIndex: 2 }}>
+        <Box sx={{ 
+          width: '100%', 
+          maxWidth: 1400, 
+          mt: 6, 
+          zIndex: 2,
+          mx: 'auto',
+          px: { xs: 2, md: 4 }
+        }}>
           <Typography variant="h5" color="primary" gutterBottom>
             Grab photos of the rover from a particular date and camera
           </Typography>
@@ -344,7 +358,7 @@ const MarsRoverDetailPage: React.FC = () => {
             <>
               <Grid container spacing={2} sx={{ justifyContent: 'center', width: '100%' }}>
                 {photos.length === 0 ? (
-                  <Grid item>
+                  <Grid item xs={12} sx={{ textAlign: 'center' }}>
                     <Typography variant="body2" color="text.secondary">No photos found for the selected criteria.</Typography>
                   </Grid>
                 ) : (

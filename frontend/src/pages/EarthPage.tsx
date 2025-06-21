@@ -206,7 +206,7 @@ const ExploreButton = styled(Button)(({ theme }) => ({
 }));
 
 const EarthPage: React.FC = () => {
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const [events, setEvents] = useState<EONETEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -365,22 +365,11 @@ const EarthPage: React.FC = () => {
   // NEO Earth: always fully visible (no fade in/out)
   const neoFade = 1;
 
-  if (loading) {
-    return (
-      <Layout>
-        <Box
-          sx={{
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            minHeight: '80vh',
-          }}
-        >
-          <CircularProgress size={60} />
-        </Box>
-      </Layout>
-    );
-  }
+  // if (loading) {
+  //   return (
+  
+  //   );
+  // }
 
   return (
     <Layout title="Earth & Space Events">
