@@ -2,15 +2,18 @@ import React, { useState, useEffect } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { Stars, Html, OrbitControls } from '@react-three/drei';
 import * as THREE from 'three';
-import { Box, Typography } from '@mui/material';
+import { Box, Typography, useTheme, useMediaQuery } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import type { EONETEvent } from '../../types/nasa';
 
 const EarthContainer = styled(Box)(({ theme }) => ({
   width: '100%',
-  height: '100vh',
+  height: '100%',
   position: 'relative',
   // background: 'linear-gradient(135deg, #0A0A0F 0%, #1A1A2E 50%, #16213E 100%)',
+  [theme.breakpoints.down('sm')]: {
+    height: '60vh',
+  },
 }));
 
 interface Earth3DProps {
@@ -41,6 +44,8 @@ const EarthScene: React.FC<Earth3DProps> = ({ events, neos, onEventClick, onNEOC
   const [textureError, setTextureError] = useState(false);
   const earthGroupRef = React.useRef<THREE.Group>(null);
   const neosGroupRef = React.useRef<THREE.Group>(null);
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   // Load texture manually
   useEffect(() => {
@@ -84,7 +89,7 @@ const EarthScene: React.FC<Earth3DProps> = ({ events, neos, onEventClick, onNEOC
       <ambientLight intensity={0.6} />
       <directionalLight position={[5, 3, 5]} intensity={1.2} />
       <pointLight position={[-5, -3, -5]} intensity={0.5} />
-      <Stars radius={100} depth={50} count={2000} factor={2} fade speed={1} />
+      <Stars radius={100} depth={50} count={isMobile ? 1000 : 2000} factor={2} fade speed={1} />
       
       {/* Earth sphere */}
       <group ref={earthGroupRef} scale={earthScale} position={[0, earthY, 0]}>
@@ -95,7 +100,7 @@ const EarthScene: React.FC<Earth3DProps> = ({ events, neos, onEventClick, onNEOC
         >
           {textureLoaded && earthTexture ? (
             <>
-              <sphereGeometry args={[1, 64, 64]} />
+              <sphereGeometry args={[1, isMobile ? 32 : 64, isMobile ? 32 : 64]} />
               <meshStandardMaterial 
                 map={earthTexture}
                 transparent
@@ -106,7 +111,7 @@ const EarthScene: React.FC<Earth3DProps> = ({ events, neos, onEventClick, onNEOC
             </>
           ) : (
             <>
-              <sphereGeometry args={[1, 64, 64]} />
+              <sphereGeometry args={[1, isMobile ? 32 : 64, isMobile ? 32 : 64]} />
               <meshPhongMaterial 
                 color={isEarthHovered ? "#7BB3F0" : "#4A90E2"} 
                 opacity={0.8} 
@@ -116,7 +121,7 @@ const EarthScene: React.FC<Earth3DProps> = ({ events, neos, onEventClick, onNEOC
         </mesh>
         {/* Atmosphere glow */}
         <mesh>
-          <sphereGeometry args={[1.02, 64, 64]} />
+          <sphereGeometry args={[1.02, isMobile ? 32 : 64, isMobile ? 32 : 64]} />
           <meshBasicMaterial color="#4A90E2" transparent opacity={0.1} />
         </mesh>
         {/* EONET Event markers */}
@@ -137,7 +142,7 @@ const EarthScene: React.FC<Earth3DProps> = ({ events, neos, onEventClick, onNEOC
                       onPointerOut={() => setHoveredEvent(null)}
                       visible={scrollProgress < 0.95}
                     >
-                      <sphereGeometry args={[0.02, 8, 8]} />
+                      <sphereGeometry args={[isMobile ? 0.03 : 0.02, 8, 8]} />
                       <meshBasicMaterial 
                         color={event.categories[0]?.id === 'wildfires' ? '#FF6B6B' : 
                                event.categories[0]?.id === 'severe-storms' ? '#FFA726' :
@@ -149,7 +154,7 @@ const EarthScene: React.FC<Earth3DProps> = ({ events, neos, onEventClick, onNEOC
                     </mesh>
                     {/* Glow effect for markers */}
                     <mesh visible={scrollProgress < 0.95}>
-                      <sphereGeometry args={[0.03, 8, 8]} />
+                      <sphereGeometry args={[isMobile ? 0.04 : 0.03, 8, 8]} />
                       <meshBasicMaterial 
                         color={event.categories[0]?.id === 'wildfires' ? '#FF6B6B' : 
                                event.categories[0]?.id === 'severe-storms' ? '#FFA726' :
@@ -166,15 +171,30 @@ const EarthScene: React.FC<Earth3DProps> = ({ events, neos, onEventClick, onNEOC
                             background: 'rgba(26, 26, 46, 0.9)',
                             border: '1px solid rgba(74, 144, 226, 0.3)',
                             borderRadius: 2,
-                            padding: 1,
-                            minWidth: 200,
+                            padding: { xs: 0.5, md: 1 },
+                            minWidth: { xs: 150, md: 200 },
+                            maxWidth: { xs: 200, md: 250 },
                             backdropFilter: 'blur(10px)',
                           }}
                         >
-                          <Typography variant="subtitle2" color="primary" sx={{fontWeight: 'bold'}} >
+                          <Typography 
+                            variant={isMobile ? "caption" : "subtitle2"} 
+                            color="primary" 
+                            sx={{
+                              fontWeight: 'bold',
+                              fontSize: { xs: '0.75rem', md: '0.875rem' }
+                            }}
+                          >
                             {event.title}
                           </Typography>
-                          <Typography variant="caption" color="white" sx={{mt: 3}}>
+                          <Typography 
+                            variant="caption" 
+                            color="white" 
+                            sx={{
+                              mt: { xs: 1, md: 3 },
+                              fontSize: { xs: '0.625rem', md: '0.75rem' }
+                            }}
+                          >
                             {event.categories[0]?.title}
                           </Typography>
                         </Box>
@@ -216,7 +236,7 @@ const EarthScene: React.FC<Earth3DProps> = ({ events, neos, onEventClick, onNEOC
                 onPointerOut={() => setHoveredNEO(null)}
                 visible={scrollProgress > 0.05}
               >
-                <sphereGeometry args={[0.04, 12, 12]} />
+                <sphereGeometry args={[isMobile ? 0.06 : 0.04, 12, 12]} />
                 <meshStandardMaterial 
                   color={neo.is_potentially_hazardous_asteroid ? '#FF6B6B' : '#FFD700'} 
                   transparent
@@ -227,13 +247,13 @@ const EarthScene: React.FC<Earth3DProps> = ({ events, neos, onEventClick, onNEOC
           })}
         </group>
       </group>
-      <CameraControls isEarthHovered={isEarthHovered} />
+      <CameraControls isEarthHovered={isEarthHovered} isMobile={isMobile} />
     </>
   );
 };
 
 // Camera controls component
-const CameraControls: React.FC<{ isEarthHovered: boolean }> = ({ isEarthHovered }) => {
+const CameraControls: React.FC<{ isEarthHovered: boolean; isMobile: boolean }> = ({ isEarthHovered, isMobile }) => {
   const { camera } = useThree();
   useEffect(() => {
     camera.position.set(0, 0, 3);
@@ -242,22 +262,30 @@ const CameraControls: React.FC<{ isEarthHovered: boolean }> = ({ isEarthHovered 
   return (
     <OrbitControls
       enablePan={true}
-      enableZoom={isEarthHovered} // zoom only when the earth is hovered
+      enableZoom={isEarthHovered || isMobile} // zoom when earth is hovered or on mobile
       enableRotate={true}
-      minDistance={2}
-      maxDistance={5}
+      minDistance={isMobile ? 2.5 : 2}
+      maxDistance={isMobile ? 4 : 5}
       autoRotate={false}
       autoRotateSpeed={0.5}
+      enableDamping={true}
+      dampingFactor={0.05}
+      rotateSpeed={isMobile ? 0.5 : 1}
+      zoomSpeed={isMobile ? 0.5 : 1}
     />
   );
 };
 
 const Earth3D: React.FC<Earth3DProps> = (props) => {
   const [isLoading, setIsLoading] = useState(true);
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
   useEffect(() => {
-    const timer = setTimeout(() => setIsLoading(false), 2000);
+    const timer = setTimeout(() => setIsLoading(false), isMobile ? 1000 : 2000);
     return () => clearTimeout(timer);
-  }, []);
+  }, [isMobile]);
+
   return (
     <EarthContainer>
       {isLoading && (
@@ -271,12 +299,26 @@ const Earth3D: React.FC<Earth3DProps> = (props) => {
             textAlign: 'center',
           }}
         >
-          <Typography variant="h6" color="primary">
+          <Typography 
+            variant={isMobile ? "body1" : "h6"} 
+            color="primary"
+            sx={{ fontSize: { xs: '1rem', md: '1.25rem' } }}
+          >
             Loading Earth...
           </Typography>
         </Box>
       )}
-      <Canvas camera={{ position: [0, 0, 3], fov: 60 }} style={{ background: 'transparent' }}>
+      <Canvas 
+        camera={{ 
+          position: [0, 0, 3], 
+          fov: isMobile ? 70 : 60 
+        }} 
+        style={{ 
+          background: 'transparent',
+          touchAction: 'pan-y'
+        }}
+        dpr={isMobile ? 1 : window.devicePixelRatio}
+      >
         <EarthScene {...props} rotationSpeed={props.rotationSpeed} />
       </Canvas>
     </EarthContainer>

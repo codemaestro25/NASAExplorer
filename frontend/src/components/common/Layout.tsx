@@ -16,6 +16,9 @@ const StyledAppBar = styled(AppBar)(({ theme }) => ({
   backdropFilter: 'blur(10px)',
   borderBottom: '1px solid rgba(74, 144, 226, 0.2)',
   boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)',
+  [theme.breakpoints.down('sm')]: {
+    minHeight: '56px',
+  },
 }));
 
 const StyledContainer = styled(Container)(({ theme }) => ({
@@ -37,7 +40,7 @@ const StyledContainer = styled(Container)(({ theme }) => ({
       radial-gradient(2px 2px at 160px 30px, #ddd, transparent)
     `,
     backgroundRepeat: 'repeat',
-    backgroundSize: '200px 100px',
+    backgroundSize: { xs: '150px 75px', md: '200px 100px' },
     animation: 'twinkle 20s linear infinite',
     opacity: 0.3,
     zIndex: 0,
@@ -52,8 +55,8 @@ const StyledContainer = styled(Container)(({ theme }) => ({
 const ContentWrapper = styled(Box)(({ theme }) => ({
   position: 'relative',
   zIndex: 1,
-  paddingTop: theme.spacing(2),
-  paddingBottom: theme.spacing(2),
+  paddingTop: { xs: theme.spacing(1), md: theme.spacing(2) },
+  paddingBottom: { xs: theme.spacing(1), md: theme.spacing(2) },
   width: '100%',
 }));
 
@@ -69,7 +72,7 @@ const Layout: React.FC<LayoutProps> = ({ children, title = 'NASA Data Explorer' 
   return (
     <Box sx={{ minHeight: '100vh' }}>
       <StyledAppBar position="static">
-        <Toolbar>
+        <Toolbar sx={{ minHeight: { xs: '56px', md: '64px' } }}>
           <Typography
             variant={isMobile ? 'h6' : 'h5'}
             component="div"
@@ -80,7 +83,9 @@ const Layout: React.FC<LayoutProps> = ({ children, title = 'NASA Data Explorer' 
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
               fontWeight: 'bold',
-              letterSpacing: '0.1em',
+              letterSpacing: { xs: '0.05em', md: '0.1em' },
+              fontSize: { xs: '1.125rem', sm: '1.25rem', md: '1.5rem' },
+              textAlign: { xs: 'center', md: 'left' },
             }}
           >
             {title}

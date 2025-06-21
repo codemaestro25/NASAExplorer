@@ -147,17 +147,15 @@ interface ManifestCardProps {
 }
 
 // cards for the manifest data
-const ManifestCard: React.FC<ManifestCardProps> = ({ label, children, xs = 12, sm }) => (
-  <Grid item xs={xs} sm={sm || xs}>
-    <InfoCard>
-      <CardContent>
-        <Typography variant="subtitle2" color="text.secondary" gutterBottom>
-          {label}
-        </Typography>
-        {children}
-      </CardContent>
-    </InfoCard>
-  </Grid>
+const ManifestCard: React.FC<ManifestCardProps> = ({ label, children }) => (
+  <InfoCard>
+    <CardContent>
+      <Typography variant="subtitle2" color="text.secondary" gutterBottom>
+        {label}
+      </Typography>
+      {children}
+    </CardContent>
+  </InfoCard>
 );
 
 const MarsRoverDetailPage: React.FC = () => {
@@ -171,6 +169,7 @@ const MarsRoverDetailPage: React.FC = () => {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const photoModalRef = useRef<PhotoModalRef | null>(null);
+  const topRef = useRef<HTMLDivElement>(null);
 
   const availableCameras = useMemo(() => {
     if (!roverId || !roverCameraData[roverId]) {
@@ -186,6 +185,9 @@ const MarsRoverDetailPage: React.FC = () => {
       setEarthDate('');
       setCamera('');
       setPage(1);
+    }
+    if (topRef.current) {
+      topRef.current.scrollIntoView({ behavior: 'smooth' });
     }
     // eslint-disable-next-line
   }, [roverId]);
@@ -277,7 +279,7 @@ const MarsRoverDetailPage: React.FC = () => {
 
   return (
     <Layout title={`Mars Rover: ${roverId?.charAt(0).toUpperCase() + (roverId?.slice(1) ?? '')}` }>
-      <SectionContainer>
+      <SectionContainer ref={topRef}>
         <Box sx={{ 
           display: 'flex',
           justifyContent: 'space-between',
@@ -297,39 +299,51 @@ const MarsRoverDetailPage: React.FC = () => {
             </Typography>
             {manifest ? (
               <Grid container spacing={2}>
-                <ManifestCard label="Rover">
-                  <Typography variant="h5">{manifest.name}</Typography>
-                </ManifestCard>
+                <Grid item xs={12}>
+                  <ManifestCard label="Rover">
+                    <Typography variant="h5">{manifest.name}</Typography>
+                  </ManifestCard>
+                </Grid>
 
-                <ManifestCard label="Status" sm={6}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <FiberManualRecord
-                      fontSize="small"
-                      sx={{ color: manifest.status === 'active' ? 'success.main' : 'error.main' }}
-                    />
-                    <Typography variant="h6">{manifest.status}</Typography>
-                  </Box>
-                </ManifestCard>
+                <Grid item xs={12} sm={6}>
+                  <ManifestCard label="Status">
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <FiberManualRecord
+                        fontSize="small"
+                        sx={{ color: manifest.status === 'active' ? 'success.main' : 'error.main' }}
+                      />
+                      <Typography variant="h6">{manifest.status}</Typography>
+                    </Box>
+                  </ManifestCard>
+                </Grid>
 
-                <ManifestCard label="Total Photos" sm={6}>
-                  <Typography variant="h6">{manifest.total_photos.toLocaleString()}</Typography>
-                </ManifestCard>
+                <Grid item xs={12} sm={6}>
+                  <ManifestCard label="Total Photos">
+                    <Typography variant="h6">{manifest.total_photos.toLocaleString()}</Typography>
+                  </ManifestCard>
+                </Grid>
 
-                <ManifestCard label="Mission Timeline">
-                  <Typography><b>Launched:</b> {manifest.launch_date}</Typography>
-                  <Typography><b>Landed:</b> {manifest.landing_date}</Typography>
-                </ManifestCard>
+                <Grid item xs={12}>
+                  <ManifestCard label="Mission Timeline">
+                    <Typography><b>Launched:</b> {manifest.launch_date}</Typography>
+                    <Typography><b>Landed:</b> {manifest.landing_date}</Typography>
+                  </ManifestCard>
+                </Grid>
 
-                <ManifestCard label="Photo Span">
-                  <Typography><b>Last Photo:</b> {manifest.max_date}</Typography>
-                  <Typography><b>Mars Sol:</b> {manifest.max_sol}</Typography>
-                </ManifestCard>
+                <Grid item xs={12}>
+                  <ManifestCard label="Photo Span">
+                    <Typography><b>Last Photo:</b> {manifest.max_date}</Typography>
+                    <Typography><b>Mars Sol:</b> {manifest.max_sol}</Typography>
+                  </ManifestCard>
+                </Grid>
 
-                <ManifestCard label="Available Cameras">
-                  {availableCameras.map((c: any) => (
-                    <Typography key={c.name} variant="body2">{c.full_name}</Typography>
-                  ))}
-                </ManifestCard>
+                <Grid item xs={12}>
+                  <ManifestCard label="Available Cameras">
+                    {availableCameras.map((c: any) => (
+                      <Typography key={c.name} variant="body2">{c.full_name}</Typography>
+                    ))}
+                  </ManifestCard>
+                </Grid>
               </Grid>
             ) : (
               <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', minHeight: '500px' }}>
@@ -381,7 +395,7 @@ const MarsRoverDetailPage: React.FC = () => {
             </Box>
           )}
           
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 4, flexWrap: 'wrap' }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 6, flexWrap: 'wrap' }}>
             <FormControl>
               <TextField
                 label="Earth Date"

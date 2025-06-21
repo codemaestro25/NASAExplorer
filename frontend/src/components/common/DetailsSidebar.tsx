@@ -1,5 +1,5 @@
 import React from 'react';
-import { Drawer, Dialog, DialogContent, useMediaQuery, useTheme, IconButton } from '@mui/material';
+import { Drawer, Dialog, DialogContent, useMediaQuery, useTheme, IconButton, Box } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 
 interface DetailsSidebarProps {
@@ -14,16 +14,53 @@ const DetailsSidebar: React.FC<DetailsSidebarProps> = ({ open, onClose, children
 
   if (isMobile) {
     return (
-      <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
-        <DialogContent sx={{ position: 'relative', p: 3 }}>
+      <Dialog 
+        open={open} 
+        onClose={onClose} 
+        fullWidth 
+        maxWidth="sm"
+        PaperProps={{
+          sx: {
+            margin: { xs: 1, sm: 2 },
+            maxHeight: '90vh',
+            borderRadius: { xs: 2, sm: 3 },
+          }
+        }}
+      >
+        <DialogContent sx={{ 
+          position: 'relative', 
+          p: { xs: 2, sm: 3 },
+          '&::-webkit-scrollbar': {
+            width: '6px',
+          },
+          '&::-webkit-scrollbar-track': {
+            background: 'rgba(255, 255, 255, 0.1)',
+            borderRadius: '3px',
+          },
+          '&::-webkit-scrollbar-thumb': {
+            background: 'rgba(74, 144, 226, 0.5)',
+            borderRadius: '3px',
+          },
+        }}>
           <IconButton
             aria-label="close"
             onClick={onClose}
-            sx={{ position: 'absolute', right: 8, top: 8, color: theme.palette.grey[500] }}
+            sx={{ 
+              position: 'absolute', 
+              right: { xs: 4, sm: 8 }, 
+              top: { xs: 4, sm: 8 }, 
+              color: theme.palette.grey[500],
+              zIndex: 1,
+              '&:hover': {
+                backgroundColor: 'rgba(255, 255, 255, 0.1)',
+              }
+            }}
           >
             <CloseIcon />
           </IconButton>
-          {children}
+          <Box sx={{ mt: { xs: 3, sm: 4 } }}>
+            {children}
+          </Box>
         </DialogContent>
       </Dialog>
     );
@@ -36,22 +73,44 @@ const DetailsSidebar: React.FC<DetailsSidebarProps> = ({ open, onClose, children
       onClose={onClose}
       PaperProps={{
         sx: {
-          width: 400,
+          width: { sm: 350, md: 400 },
           maxWidth: '90vw',
           background: 'linear-gradient(135deg, #1A1A2E 0%, #16213E 100%)',
           color: '#fff',
-          p: 3,
+          p: { sm: 2, md: 3 },
+          '&::-webkit-scrollbar': {
+            width: '6px',
+          },
+          '&::-webkit-scrollbar-track': {
+            background: 'rgba(255, 255, 255, 0.1)',
+            borderRadius: '3px',
+          },
+          '&::-webkit-scrollbar-thumb': {
+            background: 'rgba(74, 144, 226, 0.5)',
+            borderRadius: '3px',
+          },
         },
       }}
     >
       <IconButton
         aria-label="close"
         onClick={onClose}
-        sx={{ position: 'absolute', right: 8, top: 8, color: theme.palette.grey[500] }}
+        sx={{ 
+          position: 'absolute', 
+          right: { sm: 4, md: 8 }, 
+          top: { sm: 4, md: 8 }, 
+          color: theme.palette.grey[500],
+          zIndex: 1,
+          '&:hover': {
+            backgroundColor: 'rgba(255, 255, 255, 0.1)',
+          }
+        }}
       >
         <CloseIcon />
       </IconButton>
-      <div style={{ marginTop: 40 }}>{children}</div>
+      <Box sx={{ marginTop: { sm: 40, md: 40 } }}>
+        {children}
+      </Box>
     </Drawer>
   );
 };

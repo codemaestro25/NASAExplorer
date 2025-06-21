@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useLayoutEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Box,
   Typography,
@@ -54,6 +54,11 @@ const ScrollIndicator = styled(Fab)(({ theme }) => ({
   '&:hover': {
     background: 'linear-gradient(45deg, #2E5C8A, #4A90E2)',
   },
+  [theme.breakpoints.down('sm')]: {
+    bottom: theme.spacing(2),
+    width: 48,
+    height: 48,
+  },
 }));
 
 const EventCard = styled(Card)({
@@ -78,6 +83,7 @@ const EarthPage: React.FC = () => {
   const [neosError, setNeosError] = useState<string | null>(null);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const isTablet = useMediaQuery(theme.breakpoints.down('md'));
   const [selectedNEO, setSelectedNEO] = useState<any | null>(null);
   const [showNEODetails, setShowNEODetails] = useState(false);
   const [neoDetailsLoading, setNEODetailsLoading] = useState(false);
@@ -86,7 +92,7 @@ const EarthPage: React.FC = () => {
   const [scrollY, setScrollY] = useState(0);
   const eonetRef = useRef<HTMLDivElement>(null);
   const neoRef = useRef<HTMLDivElement>(null);
-
+  const marsRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     fetchEvents();
     if (!neosLoaded) {
@@ -96,8 +102,7 @@ const EarthPage: React.FC = () => {
     const handleScroll = () => setScrollY(window.scrollY);
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [neosLoaded]);
 
   const fetchEvents = async () => {
     try {
@@ -163,26 +168,11 @@ const EarthPage: React.FC = () => {
   const translateY = -scrollY * 0.3;
   const starsTranslateY = -scrollY * 0.15;
 
-  // if (loading) {
-  //   return (
-  //     <Layout>
-  //       <Box
-  //         sx={{
-  //           display: 'flex',
-  //           justifyContent: 'center',
-  //           alignItems: 'center',
-  //           minHeight: '80vh',
-  //         }}
-  //       >
-  //         <CircularProgress size={60} />
-  //       </Box>
-  //     </Layout>
-  //   );
-  // }
-
   return (
-    <Layout title="Earth & Space Events">
-      <Box sx={{ position: 'fixed', inset: 0, zIndex: 0, transform: `translateY(${starsTranslateY}px)` }}>
+    // <Layout title="Earth & Space Events">
+      
+<>
+<Box sx={{ position: 'fixed', inset: 0, zIndex: 0, transform: `translateY(${starsTranslateY}px)` }}>
         <ParallaxStars style={{ width: '100vw', height: '100vh' }} />
       </Box>
       <PageContainer sx={{ position: 'relative', zIndex: 1 }}>
@@ -192,14 +182,53 @@ const EarthPage: React.FC = () => {
           onExplore={handleExplore}
         />
         
-        <SectionContainer ref={eonetRef} sx={{ minHeight: '100vh', justifyContent: 'center', alignItems: 'center', flexDirection: 'row', gap: { xs: 2, md: 6 }, px: { xs: 2, md: 8 } }}>
-          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: { xs: 'center', md: 'flex-start' }, justifyContent: 'center', width: { xs: '100%', md: 400 }, zIndex: 2, gap: 2, ml: { xs: 0, md: 6 } }}>
-            <Typography variant="h2" color="primary" sx={{ fontWeight: 900, mb: 0, textAlign: { xs: 'center', md: 'left' }, letterSpacing: '0.03em', textShadow: '0 4px 32px rgba(74,144,226,0.15)', alignSelf: { xs: 'center', md: 'flex-start' } }}>
+        <SectionContainer 
+          ref={eonetRef} 
+          sx={{ 
+            minHeight: { xs: 'auto', md: '100vh' },
+            py: { xs: 4, md: 0 },
+            justifyContent: {xs : 'space-around', md: 'center'}, 
+            alignItems: 'center', 
+            flexDirection: { xs: 'column', md: 'row' }, 
+            gap: { xs: 3, md: 6 }, 
+            px: { xs: 2, md: 8 } 
+          }}
+        >
+          <Box sx={{ 
+            display: 'flex', 
+            flexDirection: 'column', 
+            alignItems: { xs: 'center', md: 'flex-start' }, 
+            justifyContent: 'center', 
+            width: { xs: '100%', md: 400 }, 
+            zIndex: 2, 
+            gap: 2, 
+            ml: { xs: 0, md: 6 },
+            order: { xs: 2, md: 1 }
+          }}>
+            <Typography 
+              variant={isMobile ? "h3" : "h2"} 
+              color="primary" 
+              sx={{ 
+                fontWeight: 900, 
+                mb: 0, 
+                textAlign: { xs: 'center', md: 'left' }, 
+                letterSpacing: '0.03em', 
+                textShadow: '0 4px 32px rgba(74,144,226,0.15)', 
+                alignSelf: { xs: 'center', md: 'flex-start' },
+                fontSize: { xs: '2rem', sm: '2.5rem', md: '3.75rem' }
+              }}
+            >
               Real-Time Earth Events
             </Typography>
-            <Card sx={{ background: 'linear-gradient(135deg, #1A1A2E 0%, #16213E 100%)', border: '1px solid rgba(74, 144, 226, 0.2)', boxShadow: '0 8px 32px rgba(74,144,226,0.08)', maxWidth: 400 }}>
-              <CardContent>
-                <Typography variant="h6" color="primary" gutterBottom>
+            <Card sx={{ 
+              background: 'linear-gradient(135deg, #1A1A2E 0%, #16213E 100%)', 
+              border: '1px solid rgba(74, 144, 226, 0.2)', 
+              boxShadow: '0 8px 32px rgba(74,144,226,0.08)', 
+              maxWidth: { xs: '100%', md: 400 },
+              width: '100%'
+            }}>
+              <CardContent sx={{ p: { xs: 2, md: 3 } }}>
+                <Typography variant="h6" color="primary" gutterBottom sx={{ fontSize: { xs: '1rem', md: '1.25rem' } }}>
                   Earth Observatory Natural Event Tracker
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
@@ -213,12 +242,22 @@ const EarthPage: React.FC = () => {
               </CardContent>
             </Card>
             {error && (
-              <Alert severity="error" sx={{ maxWidth: 400, mt: 2 }}>
+              <Alert severity="error" sx={{ maxWidth: { xs: '100%', md: 400 }, mt: 2 }}>
                 {error}
               </Alert>
             )}
           </Box>
-          <Box sx={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: 0, position: 'relative' }}>
+          <Box sx={{ 
+            flex: 1, 
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'center', 
+            minWidth: 0, 
+            position: 'relative',
+            height: { xs: '50vh', md: '100vh' },
+            width: '100%',
+            order: { xs: 1, md: 2 }
+          }}>
             <Earth3D
               events={events}
               neos={[]}
@@ -226,6 +265,7 @@ const EarthPage: React.FC = () => {
               onNEOClick={() => {}}
               scrollProgress={0}
             />
+          </Box>
             <ScrollIndicator
               color="primary"
               onClick={() => {
@@ -233,22 +273,66 @@ const EarthPage: React.FC = () => {
                   neoRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 }
               }}
-              size="large"
-              sx={{ zIndex: 20, position: 'absolute', bottom: 40, left: '50%', transform: 'translateX(-50%)' }}
+              size={isMobile ? "medium" : "large"}
+              sx={{ 
+                zIndex: 20, 
+                position: 'absolute', 
+                bottom: { xs: 20, md: 40 }, 
+                left: '50%', 
+                transform: 'translateX(-50%)' 
+              }}
             >
               <KeyboardArrowDown />
             </ScrollIndicator>
-          </Box>
         </SectionContainer>
         
-        <SectionContainer ref={neoRef} sx={{ minHeight: '100vh', justifyContent: 'center', alignItems: 'center', flexDirection: 'row-reverse', gap: { xs: 2, md: 6 }, px: { xs: 2, md: 8 } }}>
-          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: { xs: 'center', md: 'flex-end' }, justifyContent: 'center', width: { xs: '100%', md: 400 }, zIndex: 2, gap: 2, mr: { xs: 0, md: 6 } }}>
-            <Typography variant="h2" color="primary" sx={{ fontWeight: 900, mb: 0, textAlign: { xs: 'center', md: 'right' }, letterSpacing: '0.03em', textShadow: '0 4px 32px rgba(74,144,226,0.15)', alignSelf: { xs: 'center', md: 'flex-end' } }}>
+        <SectionContainer 
+          ref={neoRef} 
+          sx={{ 
+            minHeight: { xs: 'auto', md: '100vh' },
+            py: { xs: 4, md: 0 },
+            justifyContent: 'center', 
+            alignItems: 'center', 
+            flexDirection: { xs: 'column', md: 'row-reverse' }, 
+            gap: { xs: 3, md: 6 }, 
+            px: { xs: 2, md: 8 } 
+          }}
+        >
+          <Box sx={{ 
+            display: 'flex', 
+            flexDirection: 'column', 
+            alignItems: { xs: 'center', md: 'flex-end' }, 
+            justifyContent: 'center', 
+            width: { xs: '100%', md: 400 }, 
+            zIndex: 2, 
+            gap: 2, 
+            mr: { xs: 0, md: 6 },
+            order: { xs: 2, md: 1 }
+          }}>
+            <Typography 
+              variant={isMobile ? "h3" : "h2"} 
+              color="primary" 
+              sx={{ 
+                fontWeight: 900, 
+                mb: 0, 
+                textAlign: { xs: 'center', md: 'right' }, 
+                letterSpacing: '0.03em', 
+                textShadow: '0 4px 32px rgba(74,144,226,0.15)', 
+                alignSelf: { xs: 'center', md: 'flex-end' },
+                fontSize: { xs: '2rem', sm: '2.5rem', md: '3.75rem' }
+              }}
+            >
               Near Earth Objects
             </Typography>
-            <Card sx={{ background: 'linear-gradient(135deg, #1A1A2E 0%, #16213E 100%)', border: '1px solid rgba(74, 144, 226, 0.2)', boxShadow: '0 8px 32px rgba(74,144,226,0.08)', maxWidth: 400 }}>
-              <CardContent>
-                <Typography variant="h6" color="primary" gutterBottom>
+            <Card sx={{ 
+              background: 'linear-gradient(135deg, #1A1A2E 0%, #16213E 100%)', 
+              border: '1px solid rgba(74, 144, 226, 0.2)', 
+              boxShadow: '0 8px 32px rgba(74,144,226,0.08)', 
+              maxWidth: { xs: '100%', md: 400 },
+              width: '100%'
+            }}>
+              <CardContent sx={{ p: { xs: 2, md: 3 } }}>
+                <Typography variant="h6" color="primary" gutterBottom sx={{ fontSize: { xs: '1rem', md: '1.25rem' } }}>
                   Near Earth Object Tracker
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
@@ -271,7 +355,18 @@ const EarthPage: React.FC = () => {
               </CardContent>
             </Card>
           </Box>
-          <Box sx={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: 0, position: 'relative', height: '100vh', mt:-10 }}>
+          <Box sx={{ 
+            flex: 1, 
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'center', 
+            minWidth: 0, 
+            position: 'relative', 
+            height: { xs: '50vh', md: '100vh' }, 
+            width: '100%',
+            mt: { xs: 0, md: -30 },
+            order: { xs: 1, md: 2 }
+          }}>
             <Earth3D
               events={[]}
               neos={neos}
@@ -280,37 +375,95 @@ const EarthPage: React.FC = () => {
               scrollProgress={1}
             />
           </Box>
+               <ScrollIndicator
+              color="primary"
+              onClick={() => {
+              
+                if (marsRef.current) {
+                  marsRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+              }}
+              size={isMobile ? "medium" : "large"}
+              sx={{ 
+                zIndex: 20, 
+                position: 'absolute', 
+                bottom: { xs: 20, md: 40 }, 
+                left: '50%', 
+                transform: 'translateX(-50%)' ,
+                mt : { xs: 2, md: 4}
+              }}
+            >
+              <KeyboardArrowDown />
+            </ScrollIndicator>
         </SectionContainer>
         
-
-        {/* mars rover selection */}
-        <SectionContainer sx={{
-          minHeight: '100vh',
+        <SectionContainer
+        ref={marsRef}
+        sx={{
+          minHeight: { xs: 'auto', md: '100vh' },
+          py: { xs: 4, md: 0 },
           backgroundImage: 'url(/images/marssurface.png)',
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          
+          backgroundSize: { xs: 'contain', md: 'cover' },
+          backgroundPosition: { xs: 'center bottom', md: 'center' },
+          backgroundRepeat: 'no-repeat',
         }}>
-          {/* <Box sx={{ position: 'absolute', inset: 0, background: 'rgba(60,30,10,0.7)', zIndex: 1 }} /> */}
-            <Box sx={{ position: 'absolute', top: 40, left: 0, right: 0, zIndex: 2 }}>
-            <Typography variant="h3" color="primary" textAlign="center" gutterBottom >
+          <Box sx={{ 
+            position: 'absolute', 
+            top: { xs: 20, md: 40 }, 
+            left: 0, 
+            right: 0, 
+            zIndex: 2 ,
+            
+          }}>
+            <Typography 
+              variant={isMobile ? "h4" : "h3"} 
+              color="primary" 
+              textAlign="center" 
+              gutterBottom
+              sx={{ fontSize: { xs: '1.75rem', sm: '2.125rem', md: '3rem' } }}
+            >
               Mars Rover Gallery
             </Typography>
-            <Typography variant="body1" color="text.secondary" textAlign="center" >
+            <Typography 
+              variant="body1" 
+              color="text.secondary" 
+              textAlign="center"
+              sx={{ px: { xs: 2, md: 0 } }}
+            >
               Click a rover to explore its mission, stats, and photos from Mars.
             </Typography>
-            </Box>
-          <Box sx={{ position: 'relative', zIndex: 2, width: '100%', p: 4, mt: 5 }}>
+          </Box>
+          <Box sx={{ 
+            position: 'relative', 
+            zIndex: 2, 
+            width: '100%', 
+            p: { xs: 2, md: 4 }, 
+            mt: { xs: 8, md: 5 } 
+          }}>
             <MarsRoverSelector />
           </Box>
         </SectionContainer>
         
-        <SectionContainer sx={{ background: 'linear-gradient(135deg, #1A1A2E 0%, #16213E 100%)' }}>
-          <Box sx={{ width: '100%', maxWidth: 1200, p: 4 }}>
-            <Typography variant="h3" color="primary" textAlign="center" gutterBottom>
+        <SectionContainer sx={{ 
+          background: 'linear-gradient(135deg, #1A1A2E 0%, #16213E 100%)',
+          py: { xs: 4, md: 0 }
+        }}>
+          <Box sx={{ width: '100%', maxWidth: 1200, p: { xs: 2, md: 4 } }}>
+            <Typography 
+              variant={isMobile ? "h4" : "h3"} 
+              color="primary" 
+              textAlign="center" 
+              gutterBottom
+              sx={{ fontSize: { xs: '1.75rem', sm: '2.125rem', md: '3rem' } }}
+            >
               Recent Natural Events
             </Typography>
-            <Typography variant="body1" color="text.secondary" textAlign="center" sx={{ mb: 4 }}>
+            <Typography 
+              variant="body1" 
+              color="text.secondary" 
+              textAlign="center" 
+              sx={{ mb: 4, px: { xs: 2, md: 0 } }}
+            >
               Track wildfires, storms, volcanoes, and other natural phenomena
             </Typography>
             <Box
@@ -321,13 +474,18 @@ const EarthPage: React.FC = () => {
                   sm: 'repeat(2, 1fr)',
                   md: 'repeat(3, 1fr)',
                 },
-                gap: 3,
+                gap: { xs: 2, md: 3 },
               }}
             >
-              {events.slice(0, 12).map((event) => (
+              {events.slice(0, isMobile ? 6 : 12).map((event) => (
                 <EventCard key={event.id}>
-                  <CardContent>
-                    <Typography variant="h6" color="primary" gutterBottom>
+                  <CardContent sx={{ p: { xs: 2, md: 3 } }}>
+                    <Typography 
+                      variant={isMobile ? "h6" : "h6"} 
+                      color="primary" 
+                      gutterBottom
+                      sx={{ fontSize: { xs: '1rem', md: '1.25rem' } }}
+                    >
                       {event.title}
                     </Typography>
                     <Box sx={{ mb: 2 }}>
@@ -341,18 +499,28 @@ const EarthPage: React.FC = () => {
                             mb: 1,
                             backgroundColor: '#4A90E2',
                             color: 'white',
+                            fontSize: { xs: '0.75rem', md: '0.875rem' }
                           }}
                         />
                       ))}
                     </Box>
-                    <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                    <Typography 
+                      variant="body2" 
+                      color="text.secondary" 
+                      sx={{ 
+                        mb: 2,
+                        fontSize: { xs: '0.875rem', md: '1rem' },
+                        lineHeight: { xs: 1.4, md: 1.5 }
+                      }}
+                    >
                       {event.description}
                     </Typography>
                     <Button
                       variant="outlined"
-                      size="small"
+                      size={isMobile ? "small" : "medium"}
                       onClick={() => handleEventClick(event)}
                       startIcon={<Info />}
+                      sx={{ fontSize: { xs: '0.75rem', md: '0.875rem' } }}
                     >
                       View Details
                     </Button>
@@ -431,7 +599,10 @@ const EarthPage: React.FC = () => {
           />
         </DialogContent>
       </Dialog>
-    </Layout>
+</>
+
+
+    // </Layout>
   );
 };
 
