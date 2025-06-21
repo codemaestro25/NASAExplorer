@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo, useRef } from 'react';
 import {
   Box,
   Typography,
@@ -18,6 +18,8 @@ import {
 import { styled } from '@mui/material/styles';
 import { useParams } from 'react-router-dom';
 import Layout from '../components/common/Layout';
+import PhotoModal from '../components/common/PhotoModal';
+import type { PhotoModalRef } from '../components/common/PhotoModal';
 import { marsRoverApi } from '../services/backendApi';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, useGLTF } from '@react-three/drei';
@@ -146,7 +148,7 @@ interface ManifestCardProps {
 
 // cards for the manifest data
 const ManifestCard: React.FC<ManifestCardProps> = ({ label, children, xs = 12, sm }) => (
-  <Grid item xs={xs} sm={sm}>
+  <Grid item xs={xs} sm={sm || xs}>
     <InfoCard>
       <CardContent>
         <Typography variant="subtitle2" color="text.secondary" gutterBottom>
@@ -168,6 +170,7 @@ const MarsRoverDetailPage: React.FC = () => {
   const [camera, setCamera] = useState('');
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const photoModalRef = useRef<PhotoModalRef | null>(null);
 
   const availableCameras = useMemo(() => {
     if (!roverId || !roverCameraData[roverId]) {
@@ -195,7 +198,7 @@ const MarsRoverDetailPage: React.FC = () => {
 
     try {
       // For manual fetch, use earth date. For initial, get manifest.
-      const params: any = isManualFetch ? { page, earth_date: earthDate, camera } : {};
+      const params: any = isManualFetch ? { earth_date: earthDate, camera } : {};
       
       const res: any = await marsRoverApi.getPhotos(roverId, params);
 
@@ -207,28 +210,70 @@ const MarsRoverDetailPage: React.FC = () => {
         setPhotos(res.photos);
         // Paginate based on 8 photos per page
         setTotalPages(Math.max(1, Math.ceil((res.photos.length || 1) / 8)));
+        // Reset to page 1 when new photos are fetched
+        setPage(1);
       }
-    } catch (err) {
-      setError('Failed to fetch rover data.');
+    } catch (err: any) {
+      console.error('Error fetching rover data:', err);
+      
+      // Handle enhanced error messages from backend
+      if (err.response?.data?.error) {
+        const errorData = err.response.data;
+        setError(errorData.error);
+        
+        // If manifest data is provided in error, update the manifest for better UX
+        if (errorData.manifest && !manifest) {
+          setManifest(errorData.manifest);
+        }
+      } else if (err.response?.status === 400) {
+        setError('Invalid request. Please check your date and camera selection.');
+      } else if (err.response?.status === 404) {
+        setError('Rover not found. Please try a different rover.');
+      } else {
+        setError('Failed to fetch rover data. Please try again later.');
+      }
     } finally {
       setLoading(false);
     }
   };
 
   const handleFetchPhotos = () => {
-    if (page !== 1) {
-      setPage(1); // Reset to page 1 for new searches
+    // Client-side validation
+    if (!earthDate) {
+      setError('Please select a date to fetch photos.');
+      return;
     }
+
+    // Check for future dates
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Reset time to start of day
+    const selectedDate = new Date(earthDate);
+    
+    if (selectedDate > today) {
+      setError('Cannot fetch photos for future dates. Please select a date in the past or today.');
+      return;
+    }
+
+    // Check if date is within rover's mission timeline (if manifest is available)
+    if (manifest) {
+      const landingDate = new Date(manifest.landing_date);
+      const maxDate = new Date(manifest.max_date);
+      
+      if (selectedDate < landingDate) {
+        setError(`No photos available before ${manifest.landing_date}. The ${manifest.name} rover landed on ${manifest.landing_date}.`);
+        return;
+      }
+      
+      if (selectedDate > maxDate) {
+        setError(`No photos available after ${manifest.max_date}. The last photo from ${manifest.name} was taken on ${manifest.max_date}.`);
+        return;
+      }
+    }
+
+    // Clear any previous errors
+    setError(null);
     fetchData(false, true);
   };
-
-  useEffect(() => {
-    // This effect will run when page changes, only if photos are already present
-    if (roverId && photos.length > 0 && earthDate) {
-      fetchData(false, true);
-    }
-    // eslint-disable-next-line
-  }, [page]);
 
   return (
     <Layout title={`Mars Rover: ${roverId?.charAt(0).toUpperCase() + (roverId?.slice(1) ?? '')}` }>
@@ -317,6 +362,25 @@ const MarsRoverDetailPage: React.FC = () => {
           <Typography variant="h5" color="primary" gutterBottom>
             Grab photos of the rover from a particular date and camera
           </Typography>
+          
+          {/* Date Range Info */}
+          {manifest && (
+            <Box sx={{ 
+              mb: 3, 
+              p: 2, 
+              backgroundColor: 'rgba(74, 144, 226, 0.1)', 
+              borderRadius: 2, 
+              border: '1px solid rgba(74, 144, 226, 0.2)' 
+            }}>
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                <strong>Valid Date Range for {manifest.name}:</strong>
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                Landing Date: {manifest.landing_date} | Last Photo: {manifest.max_date} | Total Photos: {manifest.total_photos.toLocaleString()}
+              </Typography>
+            </Box>
+          )}
+          
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 4, flexWrap: 'wrap' }}>
             <FormControl>
               <TextField
@@ -326,6 +390,9 @@ const MarsRoverDetailPage: React.FC = () => {
                 onChange={e => setEarthDate(e.target.value)}
                 size="small"
                 InputLabelProps={{ shrink: true }}
+                inputProps={{
+                  max: new Date().toISOString().split('T')[0] // Set max to today
+                }}
               />
             </FormControl>
             <FormControl sx={{ minWidth: 150 }}>
@@ -364,11 +431,35 @@ const MarsRoverDetailPage: React.FC = () => {
                 ) : (
                   photos.slice((page - 1) * 8, page * 8).map((photo: any) => (
                     <Grid item key={photo.id} xs={12} sm={6} md={3} lg={3}>
-                      <PhotoCard>
+                      <PhotoCard 
+                        sx={{ 
+                          cursor: 'pointer',
+                          transition: 'transform 0.2s ease-in-out',
+                          '&:hover': {
+                            transform: 'scale(1.02)',
+                            boxShadow: '0 8px 25px rgba(0,0,0,0.3)',
+                          }
+                        }}
+                        onClick={() => photoModalRef.current?.handlePhotoClick(photo)}
+                      >
                         <CardContent sx={{ p: 1.5 }}>
-                          <img src={photo.img_src} alt={photo.camera.full_name} style={{ width: '100%', height: 200, objectFit: 'cover', borderRadius: 8, marginBottom: 8 }} />
-                          <Typography variant="subtitle1" color="primary" noWrap>{photo.camera.full_name}</Typography>
-                          <Typography variant="body2" color="text.secondary">{photo.earth_date}</Typography>
+                          <img 
+                            src={photo.img_src} 
+                            alt={photo.camera.full_name} 
+                            style={{ 
+                              width: '100%', 
+                              height: 200, 
+                              objectFit: 'cover', 
+                              borderRadius: 8, 
+                              marginBottom: 8 
+                            }} 
+                          />
+                          <Typography variant="subtitle1" color="primary" noWrap>
+                            {photo.camera.full_name}
+                          </Typography>
+                          <Typography variant="body2" color="text.secondary">
+                            {photo.earth_date}
+                          </Typography>
                         </CardContent>
                       </PhotoCard>
                     </Grid>
@@ -389,6 +480,9 @@ const MarsRoverDetailPage: React.FC = () => {
           )}
         </Box>
       </SectionContainer>
+      
+      {/* Photo Modal - Self-contained component */}
+      <PhotoModal ref={photoModalRef} photos={photos} />
     </Layout>
   );
 };

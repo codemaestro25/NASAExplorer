@@ -36,8 +36,33 @@ const EarthScene: React.FC<Earth3DProps> = ({ events, neos, onEventClick, onNEOC
   const [hoveredEvent, setHoveredEvent] = useState<EONETEvent | null>(null);
   const [hoveredNEO, setHoveredNEO] = useState<any | null>(null);
   const [isEarthHovered, setIsEarthHovered] = useState(false);
+  const [earthTexture, setEarthTexture] = useState<THREE.Texture | null>(null);
+  const [textureLoaded, setTextureLoaded] = useState(false);
+  const [textureError, setTextureError] = useState(false);
   const earthGroupRef = React.useRef<THREE.Group>(null);
   const neosGroupRef = React.useRef<THREE.Group>(null);
+
+  // Load texture manually
+  useEffect(() => {
+    const textureLoader = new THREE.TextureLoader();
+    textureLoader.load(
+      '/images/earthmap.jpg',
+      (texture) => {
+        texture.wrapS = texture.wrapT = THREE.ClampToEdgeWrapping;
+        texture.generateMipmaps = true;
+        texture.minFilter = THREE.LinearMipmapLinearFilter;
+        texture.magFilter = THREE.LinearFilter;
+        setEarthTexture(texture);
+        setTextureLoaded(true);
+        setTextureError(false);
+      },
+      undefined,
+      (error) => {
+        setTextureError(true);
+        setTextureLoaded(false);
+      }
+    );
+  }, []);
 
   useFrame((state, delta) => {
     // Default rotation speed when not hovered
@@ -56,8 +81,9 @@ const EarthScene: React.FC<Earth3DProps> = ({ events, neos, onEventClick, onNEOC
 
   return (
     <>
-      <ambientLight intensity={0.3} />
-      <directionalLight position={[5, 3, 5]} intensity={1} />
+      <ambientLight intensity={0.6} />
+      <directionalLight position={[5, 3, 5]} intensity={1.2} />
+      <pointLight position={[-5, -3, -5]} intensity={0.5} />
       <Stars radius={100} depth={50} count={2000} factor={2} fade speed={1} />
       
       {/* Earth sphere */}
@@ -67,11 +93,26 @@ const EarthScene: React.FC<Earth3DProps> = ({ events, neos, onEventClick, onNEOC
           onPointerOut={() => setIsEarthHovered(false)}
           rotation={[0, 0, 0]}
         >
-          <sphereGeometry args={[1, 64, 64]} />
-          <meshPhongMaterial 
-            color={isEarthHovered ? "#7BB3F0" : "#4A90E2"} 
-            opacity={0.8} 
-          />
+          {textureLoaded && earthTexture ? (
+            <>
+              <sphereGeometry args={[1, 64, 64]} />
+              <meshStandardMaterial 
+                map={earthTexture}
+                transparent
+                opacity={1.0}
+                metalness={0.1}
+                roughness={0.8}
+              />
+            </>
+          ) : (
+            <>
+              <sphereGeometry args={[1, 64, 64]} />
+              <meshPhongMaterial 
+                color={isEarthHovered ? "#7BB3F0" : "#4A90E2"} 
+                opacity={0.8} 
+              />
+            </>
+          )}
         </mesh>
         {/* Atmosphere glow */}
         <mesh>
@@ -90,7 +131,6 @@ const EarthScene: React.FC<Earth3DProps> = ({ events, neos, onEventClick, onNEOC
                   <group key={event.id} position={position}>
                     <mesh
                       onClick={() => {
-                        console.log('EONET marker clicked', event);
                         onEventClick(event);
                       }}
                       onPointerOver={() => setHoveredEvent(event)}
@@ -198,6 +238,7 @@ const CameraControls: React.FC = () => {
   useEffect(() => {
     camera.position.set(0, 0, 3);
   }, [camera]);
+
   return (
     <OrbitControls
       enablePan={true}

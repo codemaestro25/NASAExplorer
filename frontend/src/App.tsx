@@ -3,7 +3,6 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { ThemeProvider } from '@mui/material/styles';
 import { CssBaseline } from '@mui/material';
 import spaceTheme from './styles/theme';
-// import SplashScreen from './pages/SplashScreen';
 import EarthPage from './pages/EarthPage';
 import NEOPage from './pages/NEOPage';
 import MarsRoverPage from './pages/MarsRoverPage';
@@ -16,7 +15,6 @@ function App() {
       <Router>
         <Routes>
           <Route path="/" element={<EarthPage />} />
-          {/* <Route path="/earth" element={<EarthPage />} /> */}
           <Route path="/neo" element={<NEOPage />} />
           <Route path="/mars" element={<MarsRoverPage />} />
           <Route path="/mars/:roverId" element={<MarsRoverDetailPage />} />

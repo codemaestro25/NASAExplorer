@@ -1,8 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React from 'react';
 import { Box, Typography, Button, Zoom } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import { useNavigate } from 'react-router-dom';
-import ParallaxStars from '../components/common/ParallaxStars';
 
 const SplashContainer = styled(Box)({
   minHeight: '100vh',
@@ -13,7 +11,6 @@ const SplashContainer = styled(Box)({
   alignItems: 'center',
   position: 'relative',
   overflow: 'hidden',
-  background: 'linear-gradient(135deg, #0A0A0F 0%, #1A1A2E 50%, #16213E 100%)',
 });
 
 const CenteredContent = styled(Box)({
@@ -137,20 +134,24 @@ const ExploreButton = styled(Button)(({ theme }) => ({
   },
 }));
 
+interface SplashScreenProps {
+  fade: number;
+  translateY: number;
+  onExplore: () => void;
+}
 
-const SplashScreen: React.FC = () => {
-  const navigate = useNavigate();
-
-  const handleExplore = () => {
-    navigate('/earth');
-  };
-
+const SplashScreen: React.FC<SplashScreenProps> = ({ fade, translateY, onExplore }) => {
   return (
     <SplashContainer>
-      <ParallaxStars style={{ width: '100vw', height: '100vh' }} />
-      <CenteredContent>
+      <CenteredContent
+        sx={{
+          opacity: fade,
+          transform: `translate(-50%, -50%) translateY(${translateY}px)`,
+          pointerEvents: fade < 0.1 ? 'none' : 'auto',
+        }}
+      >
         <LogoContainer>
-          <Zoom in={true} timeout={1000}>
+          <Zoom in={fade > 0.1} timeout={1000}>
             <NASALogo variant="h1">
               NASA
             </NASALogo>
@@ -168,7 +169,7 @@ const SplashScreen: React.FC = () => {
         >
           Explore NASA's Earth, asteroid, and Mars rover data in a beautiful, interactive 3D experience.
         </Typography>
-        <ExploreButton onClick={handleExplore} size="large">
+        <ExploreButton onClick={onExplore} size="large">
           Explore Now
         </ExploreButton>
       </CenteredContent>

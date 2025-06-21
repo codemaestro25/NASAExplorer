@@ -20,7 +20,41 @@ const getPhotos = async (rover: string, params: any) => {
   return data.photos;
 };
 
-// const validateEarthDate = (date: string) => /^\d{4}-\d{2}-\d{2}$/.test(date);
+// Enhanced date validation function
+const validateEarthDate = (date: string, manifest: any) => {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0); // Reset time to start of day
+  
+  const requestedDate = new Date(date);
+  const landingDate = new Date(manifest.landing_date);
+  const maxDate = new Date(manifest.max_date);
+  
+  // Check if date is in the future
+  if (requestedDate > today) {
+    return {
+      isValid: false,
+      error: `Cannot fetch photos for future dates. The requested date ${date} is in the future.`
+    };
+  }
+  
+  // Check if date is before landing date
+  if (requestedDate < landingDate) {
+    return {
+      isValid: false,
+      error: `No photos available before ${manifest.landing_date}. The ${manifest.name} rover landed on ${manifest.landing_date}.`
+    };
+  }
+  
+  // Check if date is after the last photo date
+  if (requestedDate > maxDate) {
+    return {
+      isValid: false,
+      error: `No photos available after ${manifest.max_date}. The last photo from ${manifest.name} was taken on ${manifest.max_date}.`
+    };
+  }
+  
+  return { isValid: true };
+};
 
 // GET /api/mars/rovers - Get list of available rovers
 export const getRovers = async (req: Request, res: Response): Promise<void> => {
@@ -79,11 +113,28 @@ export const marsRover = async (req: Request, res: Response): Promise<void> => {
       // Fetch manifest to get valid date range for photo searches
       const manifest = await getManifest(rover);
 
-      // edge case: check if earth_date is within available range for the photos
+      // Enhanced validation for earth_date
       if (earth_date && typeof earth_date === 'string') {
-        if (earth_date < manifest.landing_date || earth_date > manifest.max_date) {
+        // Validate date format
+        const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+        if (!dateRegex.test(earth_date)) {
           res.status(400).json({
-            error: `Photos for ${rover} are only available between ${manifest.landing_date} and ${manifest.max_date}.`
+            error: 'Invalid date format. Please use YYYY-MM-DD format (e.g., 2023-12-25).'
+          });
+          return;
+        }
+
+        // Validate date range and future dates
+        const validation = validateEarthDate(earth_date, manifest);
+        if (!validation.isValid) {
+          res.status(400).json({
+            error: validation.error,
+            manifest: {
+              rover: manifest.name,
+              landing_date: manifest.landing_date,
+              max_date: manifest.max_date,
+              total_photos: manifest.total_photos
+            }
           });
           return;
         }
@@ -98,9 +149,43 @@ export const marsRover = async (req: Request, res: Response): Promise<void> => {
       };
 
       const photos = await getPhotos(rover, params);
+      
+      // Check if photos were found
+      if (photos.length === 0) {
+        res.json({ 
+          photos: [],
+          message: `No photos found for ${rover} on ${earth_date}${camera ? ` with camera ${camera}` : ''}.`,
+          manifest: {
+            rover: manifest.name,
+            landing_date: manifest.landing_date,
+            max_date: manifest.max_date,
+            total_photos: manifest.total_photos
+          }
+        });
+        return;
+      }
+
       res.json({ photos });
     } catch (error: any) {
       console.error('Error fetching rover data:', error);
+      
+      // Handle specific NASA API errors
+      if (error.response?.status === 400) {
+        res.status(400).json({ 
+          error: 'Invalid request parameters',
+          details: error.response.data?.error || 'Bad request to NASA API'
+        });
+        return;
+      }
+      
+      if (error.response?.status === 404) {
+        res.status(404).json({ 
+          error: 'Rover not found',
+          details: 'The specified rover does not exist or is not available.'
+        });
+        return;
+      }
+      
       res.status(500).json({ 
         error: 'Failed to fetch rover data', 
         details: error instanceof Error ? error.message : error 

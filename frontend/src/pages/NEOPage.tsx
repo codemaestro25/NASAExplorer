@@ -31,7 +31,7 @@ const NEOCard = styled(Card)(({ theme }) => ({
   border: '1px solid rgba(74, 144, 226, 0.2)',
   marginBottom: theme.spacing(2),
   width: '100%',
-  maxWidth: 600,
+  maxWidth: 800,
 }));
 
 const defaultStartDate = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
@@ -46,17 +46,11 @@ const NEOPage: React.FC = () => {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
-  useEffect(() => {
-    fetchNEOs();
-    // eslint-disable-next-line
-  }, [startDate, endDate, page]);
-
-  const fetchNEOs = async () => {
+  const fetchNEOs = React.useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
       const res = await neoApi.getFeed(startDate, endDate);
-      // Flatten the NEOs by date
       const allNeos = Object.values(res.near_earth_objects).flat();
       setTotalPages(Math.ceil(allNeos.length / 10));
       setNeos(allNeos.slice((page - 1) * 10, page * 10));
@@ -65,7 +59,11 @@ const NEOPage: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [startDate, endDate, page]);
+
+  useEffect(() => {
+    fetchNEOs();
+  }, [fetchNEOs]);
 
   return (
     <Layout title="Near Earth Objects">
