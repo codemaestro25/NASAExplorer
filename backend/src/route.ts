@@ -2,12 +2,13 @@ import { Router } from 'express';
 import { apod } from './apis/apod';
 import { marsRover, getRovers } from './apis/mars_rover';
 import { eonetEvents, eonetCategories, eonetSources } from './apis/eonet';
-import { neoFeed, neoBrowse, neoById } from './apis/neo';
+import { neoFeed, neoBrowse, neoById, getProcessedNEOById } from './apis/neo';
+import { chatbot } from './apis/chatbot';
 
 const router = Router();
 
 // APOD (Astronomy Picture of the Day) routes
-router.get('/', apod);
+router.get('/api/apod', apod);
 
 // Mars Rover routes
 router.get('/mars/rovers', getRovers);
@@ -22,6 +23,22 @@ router.get('/eonet/sources', eonetSources);
 router.get('/neo/feed', neoFeed);
 router.get('/neo/browse', neoBrowse);
 router.get('/neo/:id', neoById);
+router.get('/neo/:id/visualization', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const processedData = await getProcessedNEOById(id);
+        res.json(processedData);
+    } catch (error: any) {
+        console.error('Error fetching processed NEO data:', error);
+        res.status(500).json({ 
+            error: 'Failed to fetch processed NEO data',
+            details: error instanceof Error ? error.message : 'Unknown error'
+        });
+    }
+});
+
+// Chatbot route
+router.post('/api/chat', chatbot);
 
 export default router;
 

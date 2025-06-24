@@ -1,5 +1,6 @@
 import React from 'react';
 import { Box, Typography, Button, CircularProgress, Alert, useTheme, useMediaQuery } from '@mui/material';
+import NEOVisualization from './NEOVisualization';
 
 interface NeoDetailsProps {
   neo: any;
@@ -98,55 +99,6 @@ const NeoDetails: React.FC<NeoDetailsProps> = ({ neo, loading, error }) => {
       >
         Potentially Hazardous: {neo.is_potentially_hazardous_asteroid ? 'Yes' : 'No'}
       </Typography>
-      {neo.close_approach_data && neo.close_approach_data.length > 0 && (
-        <Box sx={{ mt: { xs: 1.5, sm: 2 } }}>
-          <Typography 
-            variant="subtitle2" 
-            color="primary" 
-            gutterBottom
-            sx={{ 
-              fontSize: { xs: '0.875rem', sm: '1rem' },
-              mb: { xs: 0.5, sm: 1 }
-            }}
-          >
-            Close Approach Data:
-          </Typography>
-          {neo.close_approach_data.map((cad: any, idx: number) => (
-            <Box key={idx} sx={{ mb: { xs: 1, sm: 1.5 } }}>
-              <Typography 
-                variant="body2" 
-                color="text.secondary"
-                sx={{ 
-                  fontSize: { xs: '0.75rem', sm: '0.875rem' },
-                  mb: { xs: 0.25, sm: 0.5 }
-                }}
-              >
-                Date: {cad.close_approach_date_full || cad.close_approach_date}
-              </Typography>
-              <Typography 
-                variant="body2" 
-                color="text.secondary"
-                sx={{ 
-                  fontSize: { xs: '0.75rem', sm: '0.875rem' },
-                  mb: { xs: 0.25, sm: 0.5 }
-                }}
-              >
-                Miss Distance: {cad.miss_distance.kilometers} km
-              </Typography>
-              <Typography 
-                variant="body2" 
-                color="text.secondary"
-                sx={{ 
-                  fontSize: { xs: '0.75rem', sm: '0.875rem' },
-                  mb: { xs: 0.5, sm: 1 }
-                }}
-              >
-                Relative Velocity: {cad.relative_velocity.kilometers_per_hour} km/h
-              </Typography>
-            </Box>
-          ))}
-        </Box>
-      )}
       <Button
         href={neo.nasa_jpl_url}
         target="_blank"
@@ -161,6 +113,12 @@ const NeoDetails: React.FC<NeoDetailsProps> = ({ neo, loading, error }) => {
       >
         NASA JPL Details
       </Button>
+      {/* Visualization Section */}
+      {neo.id && (
+        <Box sx={{ mt: 3 }}>
+          <NEOVisualization neoId={neo.id} />
+        </Box>
+      )}
     </Box>
   );
 };

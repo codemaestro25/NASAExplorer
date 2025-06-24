@@ -193,6 +193,19 @@ export const marsRover = async (req: Request, res: Response): Promise<void> => {
     }
   };
 
+export async function getMarsRoverPhotos(rover: string = 'curiosity', sol: string = '1000'): Promise<any> {
+    const NASA_MARS_ROVER_URL = `https://api.nasa.gov/mars-photos/api/v1/rovers/${rover}/photos`;
+    const response = await axios.get(NASA_MARS_ROVER_URL, {
+        params: {
+            api_key: NASA_API_KEY,
+            sol
+        }
+    });
+    return response.data;
+}
+
+export { validateEarthDate };
+
 
 
 

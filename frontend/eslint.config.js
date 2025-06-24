@@ -23,6 +23,10 @@ export default tseslint.config(
         'warn',
         { allowConstantExport: true },
       ],
+      '@typescript-eslint/no-explicit-any': 'off',
+      'no-unused-vars': 'off',           // warns about unused variables (including imports)
+      'no-unused-imports': 'off', 
+      
     },
   },
 )

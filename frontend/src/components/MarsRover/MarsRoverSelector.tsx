@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Typography, useTheme } from '@mui/material';
+import { Box, Typography} from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 
 const rovers = [
@@ -40,7 +40,6 @@ const rovers = [
 
 const MarsRoverSelector: React.FC = () => {
   const navigate = useNavigate();
-  const theme = useTheme();
 
   return (
     <Box sx={{

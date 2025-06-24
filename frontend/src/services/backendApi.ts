@@ -4,7 +4,7 @@ import type {
   NEOResponse,
   RoverResponse,
   RoverManifest,
-  EPICResponse
+  APODResponse
 } from '../types/nasa';
 
 // Backend API Base URL
@@ -101,8 +101,8 @@ export const marsRoverApi = {
 // APOD (Astronomy Picture of the Day) API
 export const apodApi = {
   // Get today's APOD
-  getToday: async () => {
-    const response = await backendApi.get('/');
+  getToday: async (): Promise<APODResponse> => {
+    const response = await backendApi.get('/api/apod');
     return response.data;
   },
 };

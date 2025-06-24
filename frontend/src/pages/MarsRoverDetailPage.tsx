@@ -63,6 +63,7 @@ const PhotoCard = styled(Card)(({ theme }) => ({
   background: 'linear-gradient(135deg, #1A1A2E 0%, #16213E 100%)',
   border: '1px solid rgba(74, 144, 226, 0.2)',
   width: '100%',
+  borderRadius: (theme.shape.borderRadius as number) * 1.5,
 }));
 
 // Local 3D model loader using GLB files from public/models folder
@@ -148,14 +149,14 @@ interface ManifestCardProps {
 
 // cards for the manifest data
 const ManifestCard: React.FC<ManifestCardProps> = ({ label, children }) => (
-  <InfoCard>
-    <CardContent>
-      <Typography variant="subtitle2" color="text.secondary" gutterBottom>
-        {label}
-      </Typography>
-      {children}
-    </CardContent>
-  </InfoCard>
+    <InfoCard>
+      <CardContent>
+        <Typography variant="subtitle2" color="text.secondary" gutterBottom>
+          {label}
+        </Typography>
+        {children}
+      </CardContent>
+    </InfoCard>
 );
 
 const MarsRoverDetailPage: React.FC = () => {
@@ -300,49 +301,49 @@ const MarsRoverDetailPage: React.FC = () => {
             {manifest ? (
               <Grid container spacing={2}>
                 <Grid item xs={12}>
-                  <ManifestCard label="Rover">
-                    <Typography variant="h5">{manifest.name}</Typography>
-                  </ManifestCard>
+                <ManifestCard label="Rover">
+                  <Typography variant="h5">{manifest.name}</Typography>
+                </ManifestCard>
                 </Grid>
 
                 <Grid item xs={12} sm={6}>
                   <ManifestCard label="Status">
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                      <FiberManualRecord
-                        fontSize="small"
-                        sx={{ color: manifest.status === 'active' ? 'success.main' : 'error.main' }}
-                      />
-                      <Typography variant="h6">{manifest.status}</Typography>
-                    </Box>
-                  </ManifestCard>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <FiberManualRecord
+                      fontSize="small"
+                      sx={{ color: manifest.status === 'active' ? 'success.main' : 'error.main' }}
+                    />
+                    <Typography variant="h6">{manifest.status}</Typography>
+                  </Box>
+                </ManifestCard>
                 </Grid>
 
                 <Grid item xs={12} sm={6}>
                   <ManifestCard label="Total Photos">
-                    <Typography variant="h6">{manifest.total_photos.toLocaleString()}</Typography>
-                  </ManifestCard>
+                  <Typography variant="h6">{manifest.total_photos.toLocaleString()}</Typography>
+                </ManifestCard>
                 </Grid>
 
                 <Grid item xs={12}>
-                  <ManifestCard label="Mission Timeline">
-                    <Typography><b>Launched:</b> {manifest.launch_date}</Typography>
-                    <Typography><b>Landed:</b> {manifest.landing_date}</Typography>
-                  </ManifestCard>
+                <ManifestCard label="Mission Timeline">
+                  <Typography><b>Launched:</b> {manifest.launch_date}</Typography>
+                  <Typography><b>Landed:</b> {manifest.landing_date}</Typography>
+                </ManifestCard>
                 </Grid>
 
                 <Grid item xs={12}>
-                  <ManifestCard label="Photo Span">
-                    <Typography><b>Last Photo:</b> {manifest.max_date}</Typography>
-                    <Typography><b>Mars Sol:</b> {manifest.max_sol}</Typography>
-                  </ManifestCard>
+                <ManifestCard label="Photo Span">
+                  <Typography><b>Last Photo:</b> {manifest.max_date}</Typography>
+                  <Typography><b>Mars Sol:</b> {manifest.max_sol}</Typography>
+                </ManifestCard>
                 </Grid>
 
                 <Grid item xs={12}>
-                  <ManifestCard label="Available Cameras">
-                    {availableCameras.map((c: any) => (
-                      <Typography key={c.name} variant="body2">{c.full_name}</Typography>
-                    ))}
-                  </ManifestCard>
+                <ManifestCard label="Available Cameras">
+                  {availableCameras.map((c: any) => (
+                    <Typography key={c.name} variant="body2">{c.full_name}</Typography>
+                  ))}
+                </ManifestCard>
                 </Grid>
               </Grid>
             ) : (

@@ -51,4 +51,11 @@ export const apod = async (req: Request, res: Response): Promise<void> => {
 //     }
 // };
 
+export async function getApodData(): Promise<any> {
+    const response = await axios.get(NASA_APOD_URL, {
+        params: { api_key: NASA_API_KEY }
+    });
+    return response.data;
+}
+
 

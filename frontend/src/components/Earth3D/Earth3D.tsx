@@ -5,6 +5,7 @@ import * as THREE from 'three';
 import { Box, Typography, useTheme, useMediaQuery } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import type { EONETEvent } from '../../types/nasa';
+import LoadingSpinner from '../common/LoadingSpinner';
 
 const EarthContainer = styled(Box)(({ theme }) => ({
   width: '100%',
@@ -37,11 +38,11 @@ const latLonToVector3 = (lat: number, lon: number, radius: number = 1) => {
 
 const EarthScene: React.FC<Earth3DProps> = ({ events, neos, onEventClick, onNEOClick, scrollProgress, rotationSpeed = 0.1 }) => {
   const [hoveredEvent, setHoveredEvent] = useState<EONETEvent | null>(null);
-  const [hoveredNEO, setHoveredNEO] = useState<any | null>(null);
+
   const [isEarthHovered, setIsEarthHovered] = useState(false);
   const [earthTexture, setEarthTexture] = useState<THREE.Texture | null>(null);
   const [textureLoaded, setTextureLoaded] = useState(false);
-  const [textureError, setTextureError] = useState(false);
+ 
   const earthGroupRef = React.useRef<THREE.Group>(null);
   const neosGroupRef = React.useRef<THREE.Group>(null);
   const theme = useTheme();
@@ -59,17 +60,16 @@ const EarthScene: React.FC<Earth3DProps> = ({ events, neos, onEventClick, onNEOC
         texture.magFilter = THREE.LinearFilter;
         setEarthTexture(texture);
         setTextureLoaded(true);
-        setTextureError(false);
+      
       },
       undefined,
-      (error) => {
-        setTextureError(true);
+      () => {
         setTextureLoaded(false);
       }
     );
   }, []);
 
-  useFrame((state, delta) => {
+  useFrame(() => {
     // Default rotation speed when not hovered
     const defaultRotationSpeed = 0.5;
     const currentRotationSpeed = isEarthHovered ? 0 : defaultRotationSpeed;
@@ -112,10 +112,10 @@ const EarthScene: React.FC<Earth3DProps> = ({ events, neos, onEventClick, onNEOC
           ) : (
             <>
               <sphereGeometry args={[1, isMobile ? 32 : 64, isMobile ? 32 : 64]} />
-              <meshPhongMaterial 
-                color={isEarthHovered ? "#7BB3F0" : "#4A90E2"} 
-                opacity={0.8} 
-              />
+          <meshPhongMaterial 
+            color={isEarthHovered ? "#7BB3F0" : "#4A90E2"} 
+            opacity={0.8} 
+          />
             </>
           )}
         </mesh>
@@ -299,13 +299,7 @@ const Earth3D: React.FC<Earth3DProps> = (props) => {
             textAlign: 'center',
           }}
         >
-          <Typography 
-            variant={isMobile ? "body1" : "h6"} 
-            color="primary"
-            sx={{ fontSize: { xs: '1rem', md: '1.25rem' } }}
-          >
-            Loading Earth...
-          </Typography>
+          <LoadingSpinner size={60} />
         </Box>
       )}
       <Canvas 

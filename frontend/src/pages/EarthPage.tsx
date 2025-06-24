@@ -2,22 +2,11 @@ import React, { useState, useEffect, useRef } from 'react';
 import {
   Box,
   Typography,
-  Card,
-  CardContent,
-  Chip,
-  Button,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  CircularProgress,
-  Alert,
   Fab,
   useTheme,
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import { KeyboardArrowDown, Info } from '@mui/icons-material';
-import Layout from '../components/common/Layout';
+import { KeyboardArrowDown } from '@mui/icons-material';
 import Earth3D from '../components/Earth3D/Earth3D';
 import { eonetApi, neoApi } from '../services/backendApi';
 import type { EONETEvent } from '../types/nasa';
@@ -28,6 +17,9 @@ import { useMediaQuery } from '@mui/material';
 import SplashScreen from '../components/common/SplashScreen';
 import EonetEventDetails from '../components/common/EonetEventDetails';
 import NeoDetails from '../components/common/NeoDetails';
+import APODPage from './APODPage';
+import SectionIntroCard from '../components/common/SectionIntroCard';
+import LoadingSpinner from '../components/common/LoadingSpinner';
 
 const PageContainer = styled(Box)({
   minHeight: '100vh',
@@ -61,16 +53,6 @@ const ScrollIndicator = styled(Fab)(({ theme }) => ({
   },
 }));
 
-const EventCard = styled(Card)({
-  background: 'linear-gradient(135deg, #1A1A2E 0%, #16213E 100%)',
-  border: '1px solid rgba(74, 144, 226, 0.2)',
-  transition: 'all 0.3s ease',
-  '&:hover': {
-    borderColor: 'rgba(74, 144, 226, 0.4)',
-    transform: 'translateY(-4px)',
-    boxShadow: '0 12px 40px rgba(0, 0, 0, 0.3)',
-  },
-});
 
 const EarthPage: React.FC = () => {
   const [events, setEvents] = useState<EONETEvent[]>([]);
@@ -83,7 +65,6 @@ const EarthPage: React.FC = () => {
   const [neosError, setNeosError] = useState<string | null>(null);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-  const isTablet = useMediaQuery(theme.breakpoints.down('md'));
   const [selectedNEO, setSelectedNEO] = useState<any | null>(null);
   const [showNEODetails, setShowNEODetails] = useState(false);
   const [neoDetailsLoading, setNEODetailsLoading] = useState(false);
@@ -111,7 +92,7 @@ const EarthPage: React.FC = () => {
       const response = await eonetApi.getEvents({ days: 30, limit: 50 });
       setEvents(response.events);
     } catch (err) {
-      setError('Failed to fetch Earth events. Please try again later.');
+      setError(`Failed to fetch Earth events : ${err}`);
     } finally {
       setLoading(false);
     }
@@ -129,7 +110,7 @@ const EarthPage: React.FC = () => {
       const allNeos = Object.values(res.near_earth_objects).flat();
       setNeos(allNeos);
     } catch (err) {
-      setNeosError('Failed to fetch Near Earth Objects.');
+      setNeosError(`Failed to fetch Near Earth Objects: ${err}`);
     } finally {
       setNeosLoading(false);
     }
@@ -149,7 +130,7 @@ const EarthPage: React.FC = () => {
       const details = await neoApi.getById(neo.id);
       setSelectedNEO(details);
     } catch (err) {
-      setNEODetailsError('Failed to fetch NEO details.');
+      setNEODetailsError(`Failed to fetch NEO details: ${err}`);
     } finally {
       setNEODetailsLoading(false);
     }
@@ -194,59 +175,28 @@ const EarthPage: React.FC = () => {
             px: { xs: 2, md: 8 } 
           }}
         >
-          <Box sx={{ 
-            display: 'flex', 
-            flexDirection: 'column', 
-            alignItems: { xs: 'center', md: 'flex-start' }, 
-            justifyContent: 'center', 
-            width: { xs: '100%', md: 400 }, 
-            zIndex: 2, 
-            gap: 2, 
-            ml: { xs: 0, md: 6 },
-            order: { xs: 2, md: 1 }
-          }}>
-            <Typography 
-              variant={isMobile ? "h3" : "h2"} 
-              color="primary" 
-              sx={{ 
-                fontWeight: 900, 
-                mb: 0, 
-                textAlign: { xs: 'center', md: 'left' }, 
-                letterSpacing: '0.03em', 
-                textShadow: '0 4px 32px rgba(74,144,226,0.15)', 
-                alignSelf: { xs: 'center', md: 'flex-start' },
-                fontSize: { xs: '2rem', sm: '2.5rem', md: '3.75rem' }
-              }}
-            >
-              Real-Time Earth Events
-            </Typography>
-            <Card sx={{ 
-              background: 'linear-gradient(135deg, #1A1A2E 0%, #16213E 100%)', 
-              border: '1px solid rgba(74, 144, 226, 0.2)', 
-              boxShadow: '0 8px 32px rgba(74,144,226,0.08)', 
-              maxWidth: { xs: '100%', md: 400 },
-              width: '100%'
-            }}>
-              <CardContent sx={{ p: { xs: 2, md: 3 } }}>
-                <Typography variant="h6" color="primary" gutterBottom sx={{ fontSize: { xs: '1rem', md: '1.25rem' } }}>
-                  Earth Observatory Natural Event Tracker
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  Explore real-time natural events happening around the world. Click on markers to view details.
-                </Typography>
-                <Box sx={{ mt: 2 }}>
-                  <Typography variant="caption" color="text.secondary">
-                    Events shown: {events.length}
+          <SectionIntroCard
+            title="Real-Time Earth Events"
+            cardTitle="Earth Observatory Natural Event Tracker"
+            cardDescription="Explore real-time natural events happening around the world. Click on markers to view details."
+            cardStats={
+              loading ? (
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <LoadingSpinner size={16} />
+                  <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: '0.8rem', md: '1rem' } }}>
+                    Loading events...
                   </Typography>
                 </Box>
-              </CardContent>
-            </Card>
-            {error && (
-              <Alert severity="error" sx={{ maxWidth: { xs: '100%', md: 400 }, mt: 2 }}>
-                {error}
-              </Alert>
-            )}
-          </Box>
+              ) : (
+                <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: '0.8rem', md: '1rem' } }}>
+                  Events shown: <b>{events.length}</b>
+                </Typography>
+              )
+            }
+            error={error}
+            visible={true}
+            align="left"
+          />
           <Box sx={{ 
             flex: 1, 
             display: 'flex', 
@@ -266,24 +216,24 @@ const EarthPage: React.FC = () => {
               scrollProgress={0}
             />
           </Box>
-            <ScrollIndicator
-              color="primary"
-              onClick={() => {
-                if (neoRef.current) {
-                  neoRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                }
-              }}
-              size={isMobile ? "medium" : "large"}
-              sx={{ 
-                zIndex: 20, 
-                position: 'absolute', 
-                bottom: { xs: 20, md: 40 }, 
-                left: '50%', 
-                transform: 'translateX(-50%)' 
-              }}
-            >
-              <KeyboardArrowDown />
-            </ScrollIndicator>
+          <ScrollIndicator
+            color="primary"
+            onClick={() => {
+              if (neoRef.current) {
+                neoRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              }
+            }}
+            size={isMobile ? 'medium' : 'large'}
+            sx={{ 
+              zIndex: 20, 
+              position: 'absolute', 
+              bottom: { xs: 20, md: 40 }, 
+              left: '50%', 
+              transform: 'translateX(-50%)' 
+            }}
+          >
+            <KeyboardArrowDown />
+          </ScrollIndicator>
         </SectionContainer>
         
         <SectionContainer 
@@ -298,63 +248,28 @@ const EarthPage: React.FC = () => {
             px: { xs: 2, md: 8 } 
           }}
         >
-          <Box sx={{ 
-            display: 'flex', 
-            flexDirection: 'column', 
-            alignItems: { xs: 'center', md: 'flex-end' }, 
-            justifyContent: 'center', 
-            width: { xs: '100%', md: 400 }, 
-            zIndex: 2, 
-            gap: 2, 
-            mr: { xs: 0, md: 6 },
-            order: { xs: 2, md: 1 }
-          }}>
-            <Typography 
-              variant={isMobile ? "h3" : "h2"} 
-              color="primary" 
-              sx={{ 
-                fontWeight: 900, 
-                mb: 0, 
-                textAlign: { xs: 'center', md: 'right' }, 
-                letterSpacing: '0.03em', 
-                textShadow: '0 4px 32px rgba(74,144,226,0.15)', 
-                alignSelf: { xs: 'center', md: 'flex-end' },
-                fontSize: { xs: '2rem', sm: '2.5rem', md: '3.75rem' }
-              }}
-            >
-              Near Earth Objects
-            </Typography>
-            <Card sx={{ 
-              background: 'linear-gradient(135deg, #1A1A2E 0%, #16213E 100%)', 
-              border: '1px solid rgba(74, 144, 226, 0.2)', 
-              boxShadow: '0 8px 32px rgba(74,144,226,0.08)', 
-              maxWidth: { xs: '100%', md: 400 },
-              width: '100%'
-            }}>
-              <CardContent sx={{ p: { xs: 2, md: 3 } }}>
-                <Typography variant="h6" color="primary" gutterBottom sx={{ fontSize: { xs: '1rem', md: '1.25rem' } }}>
-                  Near Earth Object Tracker
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  Asteroids and comets passing close to Earth, visualized in real time. Click on objects to view details.
-                </Typography>
-                <Box sx={{ mt: 2 }}>
-                  <Typography variant="caption" color="text.secondary">
-                    Objects shown: {neos.length}
+          <SectionIntroCard
+            title="Near Earth Objects"
+            cardTitle="Near Earth Object Tracker"
+            cardDescription="Asteroids and comets passing close to Earth, visualized in real time. Click on objects to view & visualise their details."
+            cardStats={
+              neosLoading ? (
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <LoadingSpinner size={16} />
+                  <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: '0.8rem', md: '1rem' } }}>
+                    Loading objects...
                   </Typography>
                 </Box>
-                {neosLoading && (
-                  <Box sx={{ mt: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <CircularProgress size={20} />
-                    <Typography variant="caption" color="text.secondary">Loading NEOs...</Typography>
-                  </Box>
-                )}
-                {neosError && (
-                  <Alert severity="error" sx={{ mt: 2 }}>{neosError}</Alert>
-                )}
-              </CardContent>
-            </Card>
-          </Box>
+              ) : (
+                <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: '0.8rem', md: '1rem' } }}>
+                  Objects shown: <b>{neos.length}</b>
+                </Typography>
+              )
+            }
+            error={neosError}
+            visible={true}
+            align="right"
+          />
           <Box sx={{ 
             flex: 1, 
             display: 'flex', 
@@ -367,34 +282,45 @@ const EarthPage: React.FC = () => {
             mt: { xs: 0, md: -30 },
             order: { xs: 1, md: 2 }
           }}>
-            <Earth3D
-              events={[]}
-              neos={neos}
-              onEventClick={() => {}}
-              onNEOClick={handleNEOClick}
-              scrollProgress={1}
-            />
+            {neosLoading ? (
+              <Box sx={{ 
+                display: 'flex', 
+                flexDirection: 'column', 
+                alignItems: 'center', 
+                gap: 2,
+                color: 'primary.main'
+              }}>
+                <LoadingSpinner size={60} />
+              </Box>
+            ) : (
+              <Earth3D
+                events={[]}
+                neos={neos}
+                onEventClick={() => {}}
+                onNEOClick={handleNEOClick}
+                scrollProgress={1}
+              />
+            )}
           </Box>
-               <ScrollIndicator
-              color="primary"
-              onClick={() => {
-              
-                if (marsRef.current) {
-                  marsRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                }
-              }}
-              size={isMobile ? "medium" : "large"}
-              sx={{ 
-                zIndex: 20, 
-                position: 'absolute', 
-                bottom: { xs: 20, md: 40 }, 
-                left: '50%', 
-                transform: 'translateX(-50%)' ,
-                mt : { xs: 2, md: 4}
-              }}
-            >
-              <KeyboardArrowDown />
-            </ScrollIndicator>
+          <ScrollIndicator
+            color="primary"
+            onClick={() => {
+              if (marsRef.current) {
+                marsRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              }
+            }}
+            size={isMobile ? 'medium' : 'large'}
+            sx={{ 
+              zIndex: 20, 
+              position: 'absolute', 
+              bottom: { xs: 20, md: 40 }, 
+              left: '50%', 
+              transform: 'translateX(-50%)',
+              mt : { xs: 2, md: 4}
+            }}
+          >
+            <KeyboardArrowDown />
+          </ScrollIndicator>
         </SectionContainer>
         
         <SectionContainer
@@ -444,92 +370,9 @@ const EarthPage: React.FC = () => {
           </Box>
         </SectionContainer>
         
-        <SectionContainer sx={{ 
-          background: 'linear-gradient(135deg, #1A1A2E 0%, #16213E 100%)',
-          py: { xs: 4, md: 0 }
-        }}>
-          <Box sx={{ width: '100%', maxWidth: 1200, p: { xs: 2, md: 4 } }}>
-            <Typography 
-              variant={isMobile ? "h4" : "h3"} 
-              color="primary" 
-              textAlign="center" 
-              gutterBottom
-              sx={{ fontSize: { xs: '1.75rem', sm: '2.125rem', md: '3rem' } }}
-            >
-              Recent Natural Events
-            </Typography>
-            <Typography 
-              variant="body1" 
-              color="text.secondary" 
-              textAlign="center" 
-              sx={{ mb: 4, px: { xs: 2, md: 0 } }}
-            >
-              Track wildfires, storms, volcanoes, and other natural phenomena
-            </Typography>
-            <Box
-              sx={{
-                display: 'grid',
-                gridTemplateColumns: {
-                  xs: '1fr',
-                  sm: 'repeat(2, 1fr)',
-                  md: 'repeat(3, 1fr)',
-                },
-                gap: { xs: 2, md: 3 },
-              }}
-            >
-              {events.slice(0, isMobile ? 6 : 12).map((event) => (
-                <EventCard key={event.id}>
-                  <CardContent sx={{ p: { xs: 2, md: 3 } }}>
-                    <Typography 
-                      variant={isMobile ? "h6" : "h6"} 
-                      color="primary" 
-                      gutterBottom
-                      sx={{ fontSize: { xs: '1rem', md: '1.25rem' } }}
-                    >
-                      {event.title}
-                    </Typography>
-                    <Box sx={{ mb: 2 }}>
-                      {event.categories.map((category) => (
-                        <Chip
-                          key={category.id}
-                          label={category.title}
-                          size="small"
-                          sx={{
-                            mr: 1,
-                            mb: 1,
-                            backgroundColor: '#4A90E2',
-                            color: 'white',
-                            fontSize: { xs: '0.75rem', md: '0.875rem' }
-                          }}
-                        />
-                      ))}
-                    </Box>
-                    <Typography 
-                      variant="body2" 
-                      color="text.secondary" 
-                      sx={{ 
-                        mb: 2,
-                        fontSize: { xs: '0.875rem', md: '1rem' },
-                        lineHeight: { xs: 1.4, md: 1.5 }
-                      }}
-                    >
-                      {event.description}
-                    </Typography>
-                    <Button
-                      variant="outlined"
-                      size={isMobile ? "small" : "medium"}
-                      onClick={() => handleEventClick(event)}
-                      startIcon={<Info />}
-                      sx={{ fontSize: { xs: '0.75rem', md: '0.875rem' } }}
-                    >
-                      View Details
-                    </Button>
-                  </CardContent>
-                </EventCard>
-              ))}
-            </Box>
-          </Box>
-        </SectionContainer>
+        <APODPage />
+        
+      
       </PageContainer>
       
       <DetailsSidebar
@@ -539,37 +382,7 @@ const EarthPage: React.FC = () => {
         {selectedEvent && <EonetEventDetails event={selectedEvent} />}
       </DetailsSidebar>
       
-      <Dialog
-        open={!!selectedEvent && showEventDialog && isMobile}
-        onClose={() => setShowEventDialog(false)}
-        maxWidth="md"
-        fullWidth
-      >
-        {selectedEvent && (
-          <>
-            <DialogTitle>
-              <Typography variant="h5" color="primary">
-                {selectedEvent.title}
-              </Typography>
-            </DialogTitle>
-            <DialogContent>
-              <EonetEventDetails event={selectedEvent} />
-            </DialogContent>
-            <DialogActions>
-              <Button onClick={() => setShowEventDialog(false)}>Close</Button>
-              {selectedEvent.link && (
-                <Button 
-                  href={selectedEvent.link} 
-                  target="_blank" 
-                  variant="contained"
-                >
-                  View Source
-                </Button>
-              )}
-            </DialogActions>
-          </>
-        )}
-      </Dialog>
+     
       
       <DetailsSidebar
         open={showNEODetails && !isMobile}
@@ -582,23 +395,7 @@ const EarthPage: React.FC = () => {
         />
       </DetailsSidebar>
       
-      <Dialog
-        open={showNEODetails && isMobile}
-        onClose={() => setShowNEODetails(false)}
-        maxWidth="sm"
-        fullWidth
-      >
-        <DialogTitle>
-          {selectedNEO?.name}
-        </DialogTitle>
-        <DialogContent>
-          <NeoDetails 
-            neo={selectedNEO}
-            loading={neoDetailsLoading}
-            error={neoDetailsError}
-          />
-        </DialogContent>
-      </Dialog>
+     
 </>
 
 

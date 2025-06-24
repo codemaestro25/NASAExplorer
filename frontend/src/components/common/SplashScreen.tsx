@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Typography, Button, Zoom, useTheme, useMediaQuery } from '@mui/material';
+import { Box, Typography, Button, Zoom } from '@mui/material';
 import { styled, css } from '@mui/material/styles';
 
 const SplashContainer = styled(Box)({
@@ -166,8 +166,7 @@ interface SplashScreenProps {
 }
 
 const SplashScreen: React.FC<SplashScreenProps> = ({ fade, translateY, onExplore }) => {
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
 
   return (
     <SplashContainer>
