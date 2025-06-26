@@ -9,7 +9,7 @@ import type {
 
 // Backend API Base URL
 // Use environment variable if available, otherwise fall back to deployed URL
-const BACKEND_API_BASE = import.meta.env.VITE_BACKEND_URL || 'https://nasaexplorer-production.up.railway.app/';
+const BACKEND_API_BASE = import.meta.env.BACKEND_URL || 'https://nasaexplorer-production.up.railway.app/';
 
 // Create axios instance with base configuration
 const backendApi = axios.create({
@@ -70,6 +70,12 @@ export const neoApi = {
     sort?: string;
   }) => {
     const response = await backendApi.get('/neo/browse', { params });
+    return response.data;
+  },
+
+  // Get NEO visualization data
+  getVisualization: async (asteroidId: string) => {
+    const response = await backendApi.get(`/neo/${asteroidId}/visualization`);
     return response.data;
   },
 };

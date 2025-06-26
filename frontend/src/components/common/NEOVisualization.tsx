@@ -24,6 +24,7 @@ import {
   useMediaQuery,
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
+import { neoApi } from '../../services/backendApi';
 
 ChartJS.register(
   CategoryScale,
@@ -107,11 +108,7 @@ const NEOVisualization: React.FC<NEOVisualizationProps> = ({ neoId }) => {
       try {
         setLoading(true);
         setError(null);
-        const response = await fetch(`/neo/${neoId}/visualization`);
-        if (!response.ok) {
-          throw new Error('Failed to fetch near earth object visualization data');
-        }
-        const processedData = await response.json();
+        const processedData = await neoApi.getVisualization(neoId);
         setData(processedData);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to load data');
