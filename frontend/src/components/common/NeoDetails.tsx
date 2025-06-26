@@ -7,7 +7,7 @@ interface NeoDetailsProps {
   loading: boolean;
   error: string | null;
 }
-
+// near earth object details 
 const NeoDetails: React.FC<NeoDetailsProps> = ({ neo, loading, error }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
@@ -113,7 +113,7 @@ const NeoDetails: React.FC<NeoDetailsProps> = ({ neo, loading, error }) => {
       >
         NASA JPL Details
       </Button>
-      {/* Visualization Section */}
+      {/* data visualization of the static data retuned by the api */}
       {neo.id && (
         <Box sx={{ mt: 3 }}>
           <NEOVisualization neoId={neo.id} />

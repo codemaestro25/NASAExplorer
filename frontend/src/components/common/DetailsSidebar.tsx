@@ -8,6 +8,8 @@ interface DetailsSidebarProps {
   children: React.ReactNode;
 }
 
+
+// component for the sidebar that opens when a user clicks on a event or nearearth object
 const DetailsSidebar: React.FC<DetailsSidebarProps> = ({ open, onClose, children }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
@@ -19,11 +21,13 @@ const DetailsSidebar: React.FC<DetailsSidebarProps> = ({ open, onClose, children
         onClose={onClose} 
         fullWidth 
         maxWidth="sm"
-        PaperProps={{
-          sx: {
-            margin: { xs: 1, sm: 2 },
-            maxHeight: '90vh',
-            borderRadius: { xs: 2, sm: 3 },
+        slotProps={{
+          paper: {
+            sx: {
+              margin: { xs: 1, sm: 2 },
+              maxHeight: '90vh',
+              borderRadius: { xs: 2, sm: 3 },
+            }
           }
         }}
       >
@@ -71,23 +75,25 @@ const DetailsSidebar: React.FC<DetailsSidebarProps> = ({ open, onClose, children
       anchor="right"
       open={open}
       onClose={onClose}
-      PaperProps={{
-        sx: {
-          width: { sm: 350, md: 400 },
-          maxWidth: '90vw',
-          background: 'linear-gradient(135deg, #1A1A2E 0%, #16213E 100%)',
-          color: '#fff',
-          p: { sm: 2, md: 3 },
-          '&::-webkit-scrollbar': {
-            width: '6px',
-          },
-          '&::-webkit-scrollbar-track': {
-            background: 'rgba(255, 255, 255, 0.1)',
-            borderRadius: '3px',
-          },
-          '&::-webkit-scrollbar-thumb': {
-            background: 'rgba(74, 144, 226, 0.5)',
-            borderRadius: '3px',
+      slotProps={{
+        paper: {
+          sx: {
+            width: { sm: 350, md: 400 },
+            maxWidth: '90vw',
+            background: 'linear-gradient(135deg, #1A1A2E 0%, #16213E 100%)',
+            color: '#fff',
+            p: { sm: 2, md: 3 },
+            '&::-webkit-scrollbar': {
+              width: '6px',
+            },
+            '&::-webkit-scrollbar-track': {
+              background: 'rgba(255, 255, 255, 0.1)',
+              borderRadius: '3px',
+            },
+            '&::-webkit-scrollbar-thumb': {
+              background: 'rgba(74, 144, 226, 0.5)',
+              borderRadius: '3px',
+            },
           },
         },
       }}

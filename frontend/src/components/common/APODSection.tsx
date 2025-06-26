@@ -59,7 +59,7 @@ const APODSection: React.FC = () => {
         fontFamily: monospace,
       }}
     >
-      {/* Animated Gradient Title */}
+      {/* animated gradient title */}
       <Grow in={visible} timeout={900}>
         <Typography
           variant="h3"
@@ -116,7 +116,7 @@ const APODSection: React.FC = () => {
               fontFamily: monospace,
             }}
           >
-            {/* Image or Video */}
+            {/* sliding in animation or img */}
             <Slide in={visible} direction="up" timeout={1400} mountOnEnter unmountOnExit>
               <Box
                 sx={{
@@ -168,7 +168,7 @@ const APODSection: React.FC = () => {
                 ) : null}
               </Box>
             </Slide>
-            {/* Info */}
+            {/* info card */}
             <Slide in={visible} direction="left" timeout={1700} mountOnEnter unmountOnExit>
               <CardContent
                 sx={{

@@ -1,20 +1,18 @@
 import React, { useEffect, useState, useMemo, useRef } from 'react';
-import {
-  Box,
-  Typography,
-  Card,
-  CardContent,
-  Button,
-  TextField,
-  Select,
-  MenuItem,
-  InputLabel,
-  FormControl,
-  CircularProgress,
-  Alert,
-  Grid,
-  Pagination,
-} from '@mui/material';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import Button from '@mui/material/Button';
+import TextField from '@mui/material/TextField';
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
+import InputLabel from '@mui/material/InputLabel';
+import FormControl from '@mui/material/FormControl';
+import CircularProgress from '@mui/material/CircularProgress';
+import Alert from '@mui/material/Alert';
+import Grid from '@mui/material/Grid';
+import Pagination from '@mui/material/Pagination';
 import { styled } from '@mui/material/styles';
 import { useParams } from 'react-router-dom';
 import Layout from '../components/common/Layout';
@@ -66,7 +64,7 @@ const PhotoCard = styled(Card)(({ theme }) => ({
   borderRadius: (theme.shape.borderRadius as number) * 1.5,
 }));
 
-// Local 3D model loader using GLB files from public/models folder
+// so great of NASA to provide 3D models of the rovers using GLB files, placed them public/models folder
 const roverModels: Record<string, string> = {
   curiosity: '/models/curiosity.glb',
   opportunity: '/models/spirit_and_oppurtunity.glb',
@@ -76,7 +74,7 @@ const roverModels: Record<string, string> = {
 function RoverModel({ url, roverId }: { url: string; roverId: string }) {
   const { scene } = useGLTF(url);
   
-  // Add error handling and loading state
+  //  error handling and loading state
   if (!scene) {
     return null;
   }
@@ -87,9 +85,9 @@ function RoverModel({ url, roverId }: { url: string; roverId: string }) {
         object={scene} 
         scale={1} 
         position={[0, -0.5, 0]} 
-        rotation={[0, Math.PI / 4, 0]} // Add some rotation for better initial view
+        rotation={[0, Math.PI / 4, 0]}
       />
-      {/* Add a specific light for the Spirit/Opportunity model */}
+      {/* specific light for the Spirit/Opportunity model */}
       {(roverId === 'spirit' || roverId === 'opportunity') && (
         <>
           <directionalLight 
@@ -100,6 +98,21 @@ function RoverModel({ url, roverId }: { url: string; roverId: string }) {
           <directionalLight
             position={[2, 2, -2]}
             intensity={8}
+            castShadow
+          />
+        </>
+      )}
+      {/* specific lights for the Curiosity model */}
+      {roverId === 'curiosity' && (
+        <>
+          <directionalLight 
+            position={[-3, 2, 3]} 
+            intensity={4} 
+            castShadow 
+          />
+          <directionalLight
+            position={[3, 3, -3]}
+            intensity={2}
             castShadow
           />
         </>
@@ -139,7 +152,7 @@ const roverCameraData: Record<string, { name: string; full_name: string }[]> = {
   ],
 };
 
-// New reusable component for the manifest cards
+//  reusable component for the manifest cards
 interface ManifestCardProps {
   label: string;
   children: React.ReactNode;
@@ -273,7 +286,7 @@ const MarsRoverDetailPage: React.FC = () => {
       }
     }
 
-    // Clear any previous errors
+    // clear any previous errors
     setError(null);
     fetchData(false, true);
   };
@@ -300,50 +313,45 @@ const MarsRoverDetailPage: React.FC = () => {
             </Typography>
             {manifest ? (
               <Grid container spacing={2}>
-                <Grid item xs={12}>
-                <ManifestCard label="Rover">
-                  <Typography variant="h5">{manifest.name}</Typography>
-                </ManifestCard>
+                <Grid size={{ xs: 12 }}>
+                  <ManifestCard label="Rover">
+                    <Typography variant="h5">{manifest.name}</Typography>
+                  </ManifestCard>
                 </Grid>
-
-                <Grid item xs={12} sm={6}>
+                <Grid size={{ xs: 12, sm: 6 }}>
                   <ManifestCard label="Status">
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <FiberManualRecord
-                      fontSize="small"
-                      sx={{ color: manifest.status === 'active' ? 'success.main' : 'error.main' }}
-                    />
-                    <Typography variant="h6">{manifest.status}</Typography>
-                  </Box>
-                </ManifestCard>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <FiberManualRecord
+                        fontSize="small"
+                        sx={{ color: manifest.status === 'active' ? 'success.main' : 'error.main' }}
+                      />
+                      <Typography variant="h6">{manifest.status}</Typography>
+                    </Box>
+                  </ManifestCard>
                 </Grid>
-
-                <Grid item xs={12} sm={6}>
+                <Grid size={{ xs: 12, sm: 6 }}>
                   <ManifestCard label="Total Photos">
-                  <Typography variant="h6">{manifest.total_photos.toLocaleString()}</Typography>
-                </ManifestCard>
+                    <Typography variant="h6">{manifest.total_photos.toLocaleString()}</Typography>
+                  </ManifestCard>
                 </Grid>
-
-                <Grid item xs={12}>
-                <ManifestCard label="Mission Timeline">
-                  <Typography><b>Launched:</b> {manifest.launch_date}</Typography>
-                  <Typography><b>Landed:</b> {manifest.landing_date}</Typography>
-                </ManifestCard>
+                <Grid size={{ xs: 12 }}>
+                  <ManifestCard label="Mission Timeline">
+                    <Typography><b>Launched:</b> {manifest.launch_date}</Typography>
+                    <Typography><b>Landed:</b> {manifest.landing_date}</Typography>
+                  </ManifestCard>
                 </Grid>
-
-                <Grid item xs={12}>
-                <ManifestCard label="Photo Span">
-                  <Typography><b>Last Photo:</b> {manifest.max_date}</Typography>
-                  <Typography><b>Mars Sol:</b> {manifest.max_sol}</Typography>
-                </ManifestCard>
+                <Grid size={{ xs: 12 }}>
+                  <ManifestCard label="Photo Span">
+                    <Typography><b>Last Photo:</b> {manifest.max_date}</Typography>
+                    <Typography><b>Mars Sol:</b> {manifest.max_sol}</Typography>
+                  </ManifestCard>
                 </Grid>
-
-                <Grid item xs={12}>
-                <ManifestCard label="Available Cameras">
-                  {availableCameras.map((c: any) => (
-                    <Typography key={c.name} variant="body2">{c.full_name}</Typography>
-                  ))}
-                </ManifestCard>
+                <Grid size={{ xs: 12 }}>
+                  <ManifestCard label="Available Cameras">
+                    {availableCameras.map((c: any) => (
+                      <Typography key={c.name} variant="body2">{c.full_name}</Typography>
+                    ))}
+                  </ManifestCard>
                 </Grid>
               </Grid>
             ) : (
@@ -440,12 +448,12 @@ const MarsRoverDetailPage: React.FC = () => {
             <>
               <Grid container spacing={2} sx={{ justifyContent: 'center', width: '100%' }}>
                 {photos.length === 0 ? (
-                  <Grid item xs={12} sx={{ textAlign: 'center' }}>
+                  <Grid size={{ xs: 12, sm: 6, md: 3, lg: 3 }}>
                     <Typography variant="body2" color="text.secondary">No photos found for the selected criteria.</Typography>
                   </Grid>
                 ) : (
                   photos.slice((page - 1) * 8, page * 8).map((photo: any) => (
-                    <Grid item key={photo.id} xs={12} sm={6} md={3} lg={3}>
+                    <Grid size={{ xs: 12, sm: 6, md: 3, lg: 3 }} key={photo.id}>
                       <PhotoCard 
                         sx={{ 
                           cursor: 'pointer',

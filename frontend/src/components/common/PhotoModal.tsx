@@ -1,4 +1,4 @@
-import React, { useState, useCallback, forwardRef, useImperativeHandle } from 'react';
+import { useState, useCallback, forwardRef, useImperativeHandle } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -18,7 +18,7 @@ interface PhotoModalProps {
 export interface PhotoModalRef {
   handlePhotoClick: (photo: any) => void;
 }
-
+// to expand the photo receive from the mars rover
 const PhotoModal = forwardRef<PhotoModalRef, PhotoModalProps>(({ photos, isLargeScreen: externalIsLargeScreen }, ref) => {
   const [selectedPhoto, setSelectedPhoto] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -39,7 +39,7 @@ const PhotoModal = forwardRef<PhotoModalRef, PhotoModalProps>(({ photos, isLarge
     setSelectedPhoto(null);
   };
 
-  // Expose the click handler to parent components
+  // to expose the click handler to parent components
   useImperativeHandle(ref, () => ({
     handlePhotoClick
   }), [handlePhotoClick]);
@@ -48,7 +48,6 @@ const PhotoModal = forwardRef<PhotoModalRef, PhotoModalProps>(({ photos, isLarge
 
   return (
     <>
-      {/* Photo Modal */}
       <Dialog
         open={isModalOpen}
         onClose={handleCloseModal}

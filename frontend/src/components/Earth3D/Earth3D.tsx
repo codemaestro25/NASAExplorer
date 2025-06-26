@@ -70,17 +70,17 @@ const EarthScene: React.FC<Earth3DProps> = ({ events, neos, onEventClick, onNEOC
   }, []);
 
   useFrame(() => {
-    // Default rotation speed when not hovered
+    // rotation speed when not hovered
     const defaultRotationSpeed = 0.5;
     const currentRotationSpeed = isEarthHovered ? 0 : defaultRotationSpeed;
     
     if (earthGroupRef.current) {
-      earthGroupRef.current.rotation.y += currentRotationSpeed * 0.002;
+      earthGroupRef.current.rotation.y += currentRotationSpeed * 0.0009;
     }
     if (neosGroupRef.current) neosGroupRef.current.rotation.y += rotationSpeed * 0.0001;
   });
 
-  // Earth scale and transition
+  // earth scale and transition
   const earthScale = 1 - 0.5 * scrollProgress;
   const earthY = -0.5 * scrollProgress;
 
@@ -91,7 +91,7 @@ const EarthScene: React.FC<Earth3DProps> = ({ events, neos, onEventClick, onNEOC
       <pointLight position={[-5, -3, -5]} intensity={0.5} />
       <Stars radius={100} depth={50} count={isMobile ? 1000 : 2000} factor={2} fade speed={1} />
       
-      {/* Earth sphere */}
+      {/* earth sphere */}
       <group ref={earthGroupRef} scale={earthScale} position={[0, earthY, 0]}>
         <mesh 
           onPointerOver={() => setIsEarthHovered(true)}
@@ -119,12 +119,12 @@ const EarthScene: React.FC<Earth3DProps> = ({ events, neos, onEventClick, onNEOC
             </>
           )}
         </mesh>
-        {/* Atmosphere glow */}
+        {/* slight glow to rep atmosphere */}
         <mesh>
           <sphereGeometry args={[1.02, isMobile ? 32 : 64, isMobile ? 32 : 64]} />
           <meshBasicMaterial color="#4A90E2" transparent opacity={0.1} />
         </mesh>
-        {/* EONET Event markers */}
+        {/* EONET event markers */}
         <group>
           {events.map((event) => {
             if (event.geometry && event.geometry.length > 0) {
@@ -152,7 +152,7 @@ const EarthScene: React.FC<Earth3DProps> = ({ events, neos, onEventClick, onNEOC
                         opacity={1 - scrollProgress}
                       />
                     </mesh>
-                    {/* Glow effect for markers */}
+                 
                     <mesh visible={scrollProgress < 0.95}>
                       <sphereGeometry args={[isMobile ? 0.04 : 0.03, 8, 8]} />
                       <meshBasicMaterial 
@@ -222,7 +222,7 @@ const EarthScene: React.FC<Earth3DProps> = ({ events, neos, onEventClick, onNEOC
               const clampedKm = Math.max(minKm, Math.min(maxKm, km));
               radius = 1.3 + ((clampedKm - minKm) / (maxKm - minKm)) * (2.5 - 1.3);
             }
-            // Distribute angles evenly
+            // distribute angles evenly, hell lot of math , used gpt for this to figure out
             const angle = (i / 30) * Math.PI * 2;
             const x = Math.cos(angle) * radius;
             const z = Math.sin(angle) * radius;
@@ -232,8 +232,6 @@ const EarthScene: React.FC<Earth3DProps> = ({ events, neos, onEventClick, onNEOC
                 key={neo.id}
                 position={[x, y, z]}
                 onClick={() => onNEOClick(neo)}
-                onPointerOver={() => setHoveredNEO(neo)}
-                onPointerOut={() => setHoveredNEO(null)}
                 visible={scrollProgress > 0.05}
               >
                 <sphereGeometry args={[isMobile ? 0.06 : 0.04, 12, 12]} />
@@ -252,7 +250,7 @@ const EarthScene: React.FC<Earth3DProps> = ({ events, neos, onEventClick, onNEOC
   );
 };
 
-// Camera controls component
+// camera controls component
 const CameraControls: React.FC<{ isEarthHovered: boolean; isMobile: boolean }> = ({ isEarthHovered, isMobile }) => {
   const { camera } = useThree();
   useEffect(() => {
@@ -262,7 +260,7 @@ const CameraControls: React.FC<{ isEarthHovered: boolean; isMobile: boolean }> =
   return (
     <OrbitControls
       enablePan={true}
-      enableZoom={isEarthHovered || isMobile} // zoom when earth is hovered or on mobile
+      enableZoom={isEarthHovered || isMobile} 
       enableRotate={true}
       minDistance={isMobile ? 2.5 : 2}
       maxDistance={isMobile ? 4 : 5}

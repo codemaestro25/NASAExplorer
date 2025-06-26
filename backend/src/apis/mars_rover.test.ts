@@ -1,5 +1,7 @@
 import { validateEarthDate } from './mars_rover';
 
+
+//mainly for the date validations
 describe('validateEarthDate', () => {
   const manifest = {
     name: 'Curiosity',

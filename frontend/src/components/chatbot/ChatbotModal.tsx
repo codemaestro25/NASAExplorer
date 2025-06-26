@@ -1,11 +1,11 @@
-import React, { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 import "./ChatbotModal.css";
 
 interface Message {
   sender: "user" | "bot";
   text: string;
 }
-
+//just trieds it but not integrated in the project
 const ChatbotModal = ({ onClose }: { onClose: () => void }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");

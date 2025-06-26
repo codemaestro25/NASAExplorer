@@ -74,6 +74,7 @@ const EarthPage: React.FC = () => {
   const eonetRef = useRef<HTMLDivElement>(null);
   const neoRef = useRef<HTMLDivElement>(null);
   const marsRef = useRef<HTMLDivElement>(null);
+  const latestNEORequest = useRef<string | null>(null);
   useEffect(() => {
     fetchEvents();
     if (!neosLoaded) {
@@ -122,17 +123,23 @@ const EarthPage: React.FC = () => {
   };
 
   const handleNEOClick = async (neo: any) => {
-    setSelectedNEO(null);
+    latestNEORequest.current = neo.id;
     setShowNEODetails(true);
     setNEODetailsLoading(true);
     setNEODetailsError(null);
     try {
       const details = await neoApi.getById(neo.id);
-      setSelectedNEO(details);
+      if (latestNEORequest.current === neo.id) {
+        setSelectedNEO(details);
+      }
     } catch (err) {
-      setNEODetailsError(`Failed to fetch NEO details: ${err}`);
+      if (latestNEORequest.current === neo.id) {
+        setNEODetailsError(`Failed to fetch NEO details: ${err}`);
+      }
     } finally {
-      setNEODetailsLoading(false);
+      if (latestNEORequest.current === neo.id) {
+        setNEODetailsLoading(false);
+      }
     }
   };
 
@@ -150,10 +157,30 @@ const EarthPage: React.FC = () => {
   const starsTranslateY = -scrollY * 0.15;
 
   return (
-    // <Layout title="Earth & Space Events">
-      
-<>
-<Box sx={{ position: 'fixed', inset: 0, zIndex: 0, transform: `translateY(${starsTranslateY}px)` }}>
+    <>
+      {(loading || neosLoading) && (
+        <Box
+          sx={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100vw',
+            height: '100vh',
+            background: 'rgba(10, 10, 20, 0.95)',
+            zIndex: 9999,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            flexDirection: 'column',
+          }}
+        >
+          <LoadingSpinner size={80} />
+          <Typography color="primary" sx={{ mt: 2, fontWeight: 'bold' }}>
+            Space is waiting for you...
+          </Typography>
+        </Box>
+      )}
+      <Box sx={{ position: 'fixed', inset: 0, zIndex: 0, transform: `translateY(${starsTranslateY}px)` }}>
         <ParallaxStars style={{ width: '100vw', height: '100vh' }} />
       </Box>
       <PageContainer sx={{ position: 'relative', zIndex: 1 }}>
@@ -396,10 +423,7 @@ const EarthPage: React.FC = () => {
       </DetailsSidebar>
       
      
-</>
-
-
-    // </Layout>
+    </>
   );
 };
 

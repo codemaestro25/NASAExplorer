@@ -1,4 +1,3 @@
-import React from "react";
 import "./ChatbotButton.css";
 
 const ChatbotButton = ({ onClick }: { onClick: () => void }) => (

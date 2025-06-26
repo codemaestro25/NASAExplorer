@@ -18,7 +18,7 @@ A comprehensive web application that provides interactive access to various NASA
 
 
 ### Curiosity Rover 3D Model and Manifest
-![curiosity-3d](../frontend/frontend/public/images/readme/curiosity.png)
+![curiosity-3d](frontend/public/images/readme/curiosity.png)
 
 ## Features
 

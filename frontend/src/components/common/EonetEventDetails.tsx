@@ -43,7 +43,7 @@ const EonetEventDetails: React.FC<EonetEventDetailsProps> = ({ event }) => {
       </Box>
       <Typography 
         variant="body1" 
-        paragraph
+        
         sx={{ 
           fontSize: { xs: '0.875rem', sm: '1rem' },
           lineHeight: { xs: 1.4, sm: 1.5 },
@@ -107,7 +107,7 @@ const EonetEventDetails: React.FC<EonetEventDetailsProps> = ({ event }) => {
             py: { xs: 0.75, sm: 1 }
           }}
         >
-          View Source
+          Go to Source
         </Button>
       )}
     </Box>

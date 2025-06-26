@@ -211,7 +211,7 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ fade, translateY, onExplore
           Explore NASA's Earth, asteroid, and Mars rover data in a beautiful, interactive 3D experience supported by NASA's API.
         </Typography>
         <ExploreButton onClick={onExplore} size="large">
-          Explore Now
+         Launch
         </ExploreButton>
       </CenteredContent>
     </SplashContainer>

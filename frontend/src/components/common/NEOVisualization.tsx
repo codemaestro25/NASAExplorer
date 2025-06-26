@@ -87,7 +87,7 @@ const StyledCard = styled(Card)(() => ({
   },
 }));
 
-const RiskChip = styled(Chip)(({ riskLevel }: { theme: any; riskLevel: string }) => ({
+const RiskChip = styled(Chip)(({ riskLevel }: { riskLevel: string }) => ({
   backgroundColor: riskLevel === 'high' ? '#FF6B6B' : 
                    riskLevel === 'medium' ? '#FFA726' : '#4CAF50',
   color: 'white',
@@ -109,7 +109,7 @@ const NEOVisualization: React.FC<NEOVisualizationProps> = ({ neoId }) => {
         setError(null);
         const response = await fetch(`/neo/${neoId}/visualization`);
         if (!response.ok) {
-          throw new Error('Failed to fetch NEO visualization data');
+          throw new Error('Failed to fetch near earth object visualization data');
         }
         const processedData = await response.json();
         setData(processedData);
@@ -134,7 +134,7 @@ const NEOVisualization: React.FC<NEOVisualizationProps> = ({ neoId }) => {
   if (error || !data) {
     return (
       <Alert severity="error" sx={{ m: 2 }}>
-        {error || 'Failed to load NEO visualization data'}
+        {error || 'Failed to load near earth object visualization data'}
       </Alert>
     );
   }
@@ -290,25 +290,25 @@ const NEOVisualization: React.FC<NEOVisualizationProps> = ({ neoId }) => {
           </Box>
           
           <Grid container spacing={2}>
-            <Grid item xs={12} sm={6} md={3}>
+            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
               <Typography variant="body2" color="text.secondary">Diameter</Typography>
               <Typography variant="h6" color="primary">
                 {data.diameter.estimated.toFixed(2)} km
               </Typography>
             </Grid>
-            <Grid item xs={12} sm={6} md={3}>
+            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
               <Typography variant="body2" color="text.secondary">Total Approaches</Typography>
               <Typography variant="h6" color="primary">
                 {data.statistics.totalApproaches}
               </Typography>
             </Grid>
-            <Grid item xs={12} sm={6} md={3}>
+            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
               <Typography variant="body2" color="text.secondary">Future Approaches</Typography>
               <Typography variant="h6" color="primary">
                 {data.statistics.futureApproaches}
               </Typography>
             </Grid>
-            <Grid item xs={12} sm={6} md={3}>
+            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
               <Typography variant="body2" color="text.secondary">Risk Score</Typography>
               <Typography variant="h6" color="primary">
                 {data.hazardAssessment.riskScore}/100
@@ -318,10 +318,10 @@ const NEOVisualization: React.FC<NEOVisualizationProps> = ({ neoId }) => {
         </CardContent>
       </StyledCard>
 
-      {/* Charts Grid */}
+      {/* Charts */}
       <Grid container spacing={3}>
         {/* Miss Distance Trend */}
-        <Grid item xs={12} lg={6}>
+        <Grid size={{ xs: 12, lg: 6 }}>
           <StyledCard>
             <CardContent>
               <Typography variant="h6" color="primary" gutterBottom>
@@ -334,8 +334,8 @@ const NEOVisualization: React.FC<NEOVisualizationProps> = ({ neoId }) => {
           </StyledCard>
         </Grid>
 
-        {/* Velocity Trend */}
-        <Grid item xs={12} lg={6}>
+        {/* rel velocity Trend */}
+        <Grid size={{ xs: 12, lg: 6 }}>
           <StyledCard>
             <CardContent>
               <Typography variant="h6" color="primary" gutterBottom>
@@ -348,8 +348,8 @@ const NEOVisualization: React.FC<NEOVisualizationProps> = ({ neoId }) => {
           </StyledCard>
         </Grid>
 
-        {/* Scatter Plot */}
-        <Grid item xs={12}>
+        {/* scatter plot for showing correlation between distance and velocity */}
+        <Grid size={{ xs: 12 }}>
           <StyledCard>
             <CardContent>
               <Typography variant="h6" color="primary" gutterBottom>
@@ -362,8 +362,8 @@ const NEOVisualization: React.FC<NEOVisualizationProps> = ({ neoId }) => {
           </StyledCard>
         </Grid>
 
-        {/* Statistics Cards */}
-        <Grid item xs={12} md={6}>
+       {/* stats card */}
+        <Grid size={{ xs: 12, md: 6 }}>
           <StyledCard>
             <CardContent>
               <Typography variant="h6" color="primary" gutterBottom>
@@ -381,8 +381,8 @@ const NEOVisualization: React.FC<NEOVisualizationProps> = ({ neoId }) => {
             </CardContent>
           </StyledCard>
         </Grid>
-
-        <Grid item xs={12} md={6}>
+{/* checks for next close approach if provided */}
+        <Grid size={{ xs: 12, md: 6 }}>
           <StyledCard>
             <CardContent>
               <Typography variant="h6" color="primary" gutterBottom>

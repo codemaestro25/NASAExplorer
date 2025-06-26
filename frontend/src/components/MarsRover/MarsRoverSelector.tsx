@@ -37,7 +37,7 @@ const rovers = [
     },
   },
 ];
-
+//gallery to select the rover for exploring its photos
 const MarsRoverSelector: React.FC = () => {
   const navigate = useNavigate();
 
