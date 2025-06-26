@@ -20,6 +20,8 @@ import NeoDetails from '../components/common/NeoDetails';
 import APODPage from './APODPage';
 import SectionIntroCard from '../components/common/SectionIntroCard';
 import LoadingSpinner from '../components/common/LoadingSpinner';
+import Button from '@mui/material/Button';
+import RefreshIcon from '@mui/icons-material/Refresh';
 
 const PageContainer = styled(Box)({
   minHeight: '100vh',
@@ -108,10 +110,24 @@ const EarthPage: React.FC = () => {
       const start = weekAgo.toISOString().slice(0, 10);
       const end = today.toISOString().slice(0, 10);
       const res = await neoApi.getFeed(start, end);
-      const allNeos = Object.values(res.near_earth_objects).flat();
-      setNeos(allNeos);
-    } catch (err) {
-      setNeosError(`Failed to fetch Near Earth Objects: ${err}`);
+      
+      if (res && res.near_earth_objects) {
+        const allNeos = Object.values(res.near_earth_objects).flat();
+        setNeos(allNeos);
+      } else {
+        setNeosError('Invalid response format from NEO API');
+      }
+    } catch (err: any) {
+      console.error('NEO API Error:', err);
+      if (err.response?.status === 429) {
+        setNeosError('Rate limit exceeded. Please try again later.');
+      } else if (err.response?.status === 500) {
+        setNeosError('Server error. Please try again later.');
+      } else if (err.code === 'NETWORK_ERROR' || err.code === 'ECONNABORTED') {
+        setNeosError('Network error. Please check your connection and try again.');
+      } else {
+        setNeosError(`Failed to fetch Near Earth Objects: ${err.message || 'Unknown error'}`);
+      }
     } finally {
       setNeosLoading(false);
     }
@@ -132,9 +148,20 @@ const EarthPage: React.FC = () => {
       if (latestNEORequest.current === neo.id) {
         setSelectedNEO(details);
       }
-    } catch (err) {
+    } catch (err: any) {
+      console.error('NEO Details API Error:', err);
       if (latestNEORequest.current === neo.id) {
-        setNEODetailsError(`Failed to fetch NEO details: ${err}`);
+        if (err.response?.status === 429) {
+          setNEODetailsError('Rate limit exceeded. Please try again later.');
+        } else if (err.response?.status === 404) {
+          setNEODetailsError('NEO details not found.');
+        } else if (err.response?.status === 500) {
+          setNEODetailsError('Server error. Please try again later.');
+        } else if (err.code === 'NETWORK_ERROR' || err.code === 'ECONNABORTED') {
+          setNEODetailsError('Network error. Please check your connection and try again.');
+        } else {
+          setNEODetailsError(`Failed to fetch NEO details: ${err.message || 'Unknown error'}`);
+        }
       }
     } finally {
       if (latestNEORequest.current === neo.id) {
@@ -155,6 +182,15 @@ const EarthPage: React.FC = () => {
   const fade = Math.max(0, 1 - scrollY / window.innerHeight);
   const translateY = -scrollY * 0.3;
   const starsTranslateY = -scrollY * 0.15;
+
+  const handleRetryNEOs = () => {
+    setNeosLoaded(false);
+    fetchNEOs();
+  };
+
+  const handleRetryEvents = () => {
+    fetchEvents();
+  };
 
   return (
     <>
@@ -221,6 +257,7 @@ const EarthPage: React.FC = () => {
               )
             }
             error={error}
+            onRetry={handleRetryEvents}
             visible={true}
             align="left"
           />
@@ -294,6 +331,7 @@ const EarthPage: React.FC = () => {
               )
             }
             error={neosError}
+            onRetry={handleRetryNEOs}
             visible={true}
             align="right"
           />
@@ -403,7 +441,7 @@ const EarthPage: React.FC = () => {
       </PageContainer>
       
       <DetailsSidebar
-        open={!!selectedEvent && showEventDialog && !isMobile}
+        open={!!selectedEvent && showEventDialog}
         onClose={() => setShowEventDialog(false)}
       >
         {selectedEvent && <EonetEventDetails event={selectedEvent} />}
@@ -412,7 +450,7 @@ const EarthPage: React.FC = () => {
      
       
       <DetailsSidebar
-        open={showNEODetails && !isMobile}
+        open={showNEODetails}
         onClose={() => setShowNEODetails(false)}
       >
         <NeoDetails 

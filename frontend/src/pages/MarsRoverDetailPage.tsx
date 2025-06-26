@@ -298,7 +298,7 @@ const MarsRoverDetailPage: React.FC = () => {
           display: 'flex',
           justifyContent: 'space-between',
           flexDirection: { xs: 'column', md: 'row' }, 
-          // gap: 4, 
+          gap: 5, 
           width: '100%', 
           minWidth: '100vw',
           mx: 'auto',
@@ -334,13 +334,13 @@ const MarsRoverDetailPage: React.FC = () => {
                     <Typography variant="h6">{manifest.total_photos.toLocaleString()}</Typography>
                   </ManifestCard>
                 </Grid>
-                <Grid size={{ xs: 12 }}>
+                <Grid size={{ xs: 12, sm : 6 }}>
                   <ManifestCard label="Mission Timeline">
                     <Typography><b>Launched:</b> {manifest.launch_date}</Typography>
                     <Typography><b>Landed:</b> {manifest.landing_date}</Typography>
                   </ManifestCard>
                 </Grid>
-                <Grid size={{ xs: 12 }}>
+                <Grid size={{ xs: 12, sm: 6 }}>
                   <ManifestCard label="Photo Span">
                     <Typography><b>Last Photo:</b> {manifest.max_date}</Typography>
                     <Typography><b>Mars Sol:</b> {manifest.max_sol}</Typography>

@@ -38,6 +38,8 @@ const latLonToVector3 = (lat: number, lon: number, radius: number = 1) => {
 
 const EarthScene: React.FC<Earth3DProps> = ({ events, neos, onEventClick, onNEOClick, scrollProgress, rotationSpeed = 0.1 }) => {
   const [hoveredEvent, setHoveredEvent] = useState<EONETEvent | null>(null);
+  const [touchedNEO, setTouchedNEO] = useState<string | null>(null);
+  const [touchedEvent, setTouchedEvent] = useState<string | null>(null);
 
   const [isEarthHovered, setIsEarthHovered] = useState(false);
   const [earthTexture, setEarthTexture] = useState<THREE.Texture | null>(null);
@@ -134,15 +136,49 @@ const EarthScene: React.FC<Earth3DProps> = ({ events, neos, onEventClick, onNEOC
                 const position = latLonToVector3(lat, lon, 1.05);
                 return (
                   <group key={event.id} position={position}>
+                    {/* Invisible larger touch area for mobile */}
+                    {isMobile && (
+                      <mesh
+                        onClick={() => onEventClick(event)}
+                        onPointerDown={(e) => {
+                          e.stopPropagation();
+                          setTouchedEvent(event.id);
+                        }}
+                        onPointerUp={(e) => {
+                          e.stopPropagation();
+                          setTouchedEvent(null);
+                          onEventClick(event);
+                        }}
+                        onPointerLeave={() => setTouchedEvent(null)}
+                        visible={false}
+                      >
+                        <sphereGeometry args={[0.08, 16, 16]} />
+                        <meshBasicMaterial transparent opacity={0} />
+                      </mesh>
+                    )}
                     <mesh
                       onClick={() => {
                         onEventClick(event);
                       }}
                       onPointerOver={() => setHoveredEvent(event)}
                       onPointerOut={() => setHoveredEvent(null)}
+                      onPointerDown={(e) => {
+                        // Prevent default to avoid conflicts with OrbitControls
+                        e.stopPropagation();
+                        if (isMobile) setTouchedEvent(event.id);
+                      }}
+                      onPointerUp={(e) => {
+                        // Handle touch events better on mobile
+                        e.stopPropagation();
+                        if (isMobile) setTouchedEvent(null);
+                        onEventClick(event);
+                      }}
+                      onPointerLeave={() => {
+                        if (isMobile) setTouchedEvent(null);
+                      }}
                       visible={scrollProgress < 0.95}
                     >
-                      <sphereGeometry args={[isMobile ? 0.03 : 0.02, 8, 8]} />
+                      <sphereGeometry args={[isMobile ? 0.05 : 0.02, 8, 8]} />
                       <meshBasicMaterial 
                         color={event.categories[0]?.id === 'wildfires' ? '#FF6B6B' : 
                                event.categories[0]?.id === 'severe-storms' ? '#FFA726' :
@@ -154,14 +190,14 @@ const EarthScene: React.FC<Earth3DProps> = ({ events, neos, onEventClick, onNEOC
                     </mesh>
                  
                     <mesh visible={scrollProgress < 0.95}>
-                      <sphereGeometry args={[isMobile ? 0.04 : 0.03, 8, 8]} />
+                      <sphereGeometry args={[isMobile ? 0.06 : 0.03, 8, 8]} />
                       <meshBasicMaterial 
                         color={event.categories[0]?.id === 'wildfires' ? '#FF6B6B' : 
                                event.categories[0]?.id === 'severe-storms' ? '#FFA726' :
                                event.categories[0]?.id === 'volcanoes' ? '#FF6B6B' :
                                '#4A90E2'}
                         transparent
-                        opacity={0.3 * (1 - scrollProgress)}
+                        opacity={touchedEvent === event.id ? 0.8 : 0.3 * (1 - scrollProgress)}
                       />
                     </mesh>
                     {hoveredEvent?.id === event.id && scrollProgress < 0.95 && (
@@ -228,19 +264,63 @@ const EarthScene: React.FC<Earth3DProps> = ({ events, neos, onEventClick, onNEOC
             const z = Math.sin(angle) * radius;
             const y = Math.sin(angle * 2) * 0.2;
             return (
-              <mesh
-                key={neo.id}
-                position={[x, y, z]}
-                onClick={() => onNEOClick(neo)}
-                visible={scrollProgress > 0.05}
-              >
-                <sphereGeometry args={[isMobile ? 0.06 : 0.04, 12, 12]} />
-                <meshStandardMaterial 
-                  color={neo.is_potentially_hazardous_asteroid ? '#FF6B6B' : '#FFD700'} 
-                  transparent
-                  opacity={scrollProgress}
-                />
-              </mesh>
+              <group key={neo.id} position={[x, y, z]}>
+                {/* Invisible larger touch area for mobile */}
+                {isMobile && (
+                  <mesh
+                    onClick={() => onNEOClick(neo)}
+                    onPointerDown={(e) => {
+                      e.stopPropagation();
+                      setTouchedNEO(neo.id);
+                    }}
+                    onPointerUp={(e) => {
+                      e.stopPropagation();
+                      setTouchedNEO(null);
+                      onNEOClick(neo);
+                    }}
+                    onPointerLeave={() => setTouchedNEO(null)}
+                    visible={false}
+                  >
+                    <sphereGeometry args={[0.15, 16, 16]} />
+                    <meshBasicMaterial transparent opacity={0} />
+                  </mesh>
+                )}
+                {/* Visible NEO marker */}
+                <mesh
+                  onClick={() => onNEOClick(neo)}
+                  onPointerDown={(e) => {
+                    // Prevent default to avoid conflicts with OrbitControls
+                    e.stopPropagation();
+                    if (isMobile) setTouchedNEO(neo.id);
+                  }}
+                  onPointerUp={(e) => {
+                    // Handle touch events better on mobile
+                    e.stopPropagation();
+                    if (isMobile) setTouchedNEO(null);
+                    onNEOClick(neo);
+                  }}
+                  onPointerLeave={() => {
+                    if (isMobile) setTouchedNEO(null);
+                  }}
+                  visible={scrollProgress > 0.05}
+                >
+                  <sphereGeometry args={[isMobile ? 0.12 : 0.04, 12, 12]} />
+                  <meshStandardMaterial 
+                    color={neo.is_potentially_hazardous_asteroid ? '#FF6B6B' : '#FFD700'} 
+                    transparent
+                    opacity={scrollProgress}
+                  />
+                </mesh>
+                {/* Glow effect for better visibility */}
+                <mesh visible={scrollProgress > 0.05}>
+                  <sphereGeometry args={[isMobile ? 0.12 : 0.02, 12, 12]} />
+                  <meshBasicMaterial 
+                    color={neo.is_potentially_hazardous_asteroid ? '#FF6B6B' : '#FFD700'} 
+                    transparent
+                    opacity={touchedNEO === neo.id ? 0.8 : 0.3 * scrollProgress}
+                  />
+                </mesh>
+              </group>
             );
           })}
         </group>
@@ -260,7 +340,7 @@ const CameraControls: React.FC<{ isEarthHovered: boolean; isMobile: boolean }> =
   return (
     <OrbitControls
       enablePan={true}
-      enableZoom={isEarthHovered || isMobile} 
+      enableZoom={true} 
       enableRotate={true}
       minDistance={isMobile ? 2.5 : 2}
       maxDistance={isMobile ? 4 : 5}
@@ -307,9 +387,12 @@ const Earth3D: React.FC<Earth3DProps> = (props) => {
         }} 
         style={{ 
           background: 'transparent',
-          touchAction: 'pan-y'
+          touchAction: 'none'
         }}
         dpr={isMobile ? 1 : window.devicePixelRatio}
+        onPointerMissed={() => {
+          // Handle missed pointer events
+        }}
       >
         <EarthScene {...props} rotationSpeed={props.rotationSpeed} />
       </Canvas>
