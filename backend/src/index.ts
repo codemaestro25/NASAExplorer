@@ -22,7 +22,7 @@ app.get('/health', (req, res) => {
   });
 });
 
-// Root endpoint
+// root endpoint (deploymenmt debug)
 app.get('/', (req, res) => {
   res.json({ 
     message: 'NASA Explorer Backend API',
@@ -57,9 +57,9 @@ app.use('*', (req, res) => {
 });
 
 app.listen(port, '0.0.0.0', () => {
-  console.log(`🚀 Server is running on port ${port}`);
-  console.log(`📡 Environment: ${process.env.NODE_ENV || 'development'}`);
-  console.log(`🌐 Health check: http://localhost:${port}/health`);
+  console.log(`Server is running on port ${port}`);
+  console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+  console.log(`Health check: http://localhost:${port}/health`);
 });
 
 // Handle uncaught exceptions

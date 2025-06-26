@@ -1,6 +1,6 @@
 # NASA Explorer
 
-A comprehensive web application that provides interactive access to various NASA APIs, featuring 3D visualizations, real-time data, and mobile-friendly design.
+A creative web application that provides interactive access to various NASA APIs, featuring 3D visualizations, real-time data, and mobile-friendly design.
 
 ## Application Screenshots
 
@@ -46,18 +46,18 @@ A comprehensive web application that provides interactive access to various NASA
 
 ## Known Issues
 
-### Chatbot Feature
-The chatbot feature was attempted but could not be fully implemented, if given more time can work on the same
+
 
 ### Mars Rover Photo API Limitations
 - Currently only fetching photos for the Curiosity rover
 - Attempts to fetch photos for Spirit and Opportunity rovers result in redirects
 - This is a known issue on NASA's API side, not a problem with the application
 
+
 ## Prerequisites
 
-- Node.js (version 16 or higher)
-- npm (comes with Node.js)
+- Node.js (version 17 or higher)
+- npm 
 
 ## Installation
 
@@ -99,7 +99,7 @@ The chatbot feature was attempted but could not be fully implemented, if given m
 
 ## Usage
 
-1. Open your browser and navigate to `http://localhost:5173`(if using locally)
+1. Open your browser and navigate to `http://localhost:5173`(if using locally) or live at `https://nasaexploreredeveshnarkhede.netlify.app/`
 2. The application will load with the main Earth page featuring the 3D Earth visualization
 3. Use your mouse to rotate and zoom the 3D Earth model
 4. Click on markers to view detailed information about natural events and near-earth objects
