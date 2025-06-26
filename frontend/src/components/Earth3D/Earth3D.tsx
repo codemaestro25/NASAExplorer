@@ -331,7 +331,7 @@ const EarthScene: React.FC<Earth3DProps> = ({ events, neos, onEventClick, onNEOC
 };
 
 // camera controls component
-const CameraControls: React.FC<{ isEarthHovered: boolean; isMobile: boolean }> = ({ isEarthHovered, isMobile }) => {
+const CameraControls: React.FC<{ isEarthHovered: boolean; isMobile: boolean }> = ({ isMobile }) => {
   const { camera } = useThree();
   useEffect(() => {
     camera.position.set(0, 0, 3);

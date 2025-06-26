@@ -20,8 +20,7 @@ import NeoDetails from '../components/common/NeoDetails';
 import APODPage from './APODPage';
 import SectionIntroCard from '../components/common/SectionIntroCard';
 import LoadingSpinner from '../components/common/LoadingSpinner';
-import Button from '@mui/material/Button';
-import RefreshIcon from '@mui/icons-material/Refresh';
+
 
 const PageContainer = styled(Box)({
   minHeight: '100vh',
@@ -183,14 +182,7 @@ const EarthPage: React.FC = () => {
   const translateY = -scrollY * 0.3;
   const starsTranslateY = -scrollY * 0.15;
 
-  const handleRetryNEOs = () => {
-    setNeosLoaded(false);
-    fetchNEOs();
-  };
 
-  const handleRetryEvents = () => {
-    fetchEvents();
-  };
 
   return (
     <>
@@ -257,7 +249,7 @@ const EarthPage: React.FC = () => {
               )
             }
             error={error}
-            onRetry={handleRetryEvents}
+            
             visible={true}
             align="left"
           />
@@ -331,7 +323,7 @@ const EarthPage: React.FC = () => {
               )
             }
             error={neosError}
-            onRetry={handleRetryNEOs}
+           
             visible={true}
             align="right"
           />
