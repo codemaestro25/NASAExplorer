@@ -59,6 +59,24 @@ The chatbot feature was attempted but could not be fully implemented, if given m
 - Node.js (version 16 or higher)
 - npm (comes with Node.js)
 
+## Backend Configuration
+
+The frontend is configured to connect to the deployed backend at `https://nasaexplorer-production.up.railway.app/` by default.
+
+### Environment Variables (Optional)
+
+For local development or to use a different backend URL, you can create a `.env` file in the frontend directory:
+
+```bash
+# For local development
+VITE_BACKEND_URL=http://localhost:3000
+
+# For production (default)
+VITE_BACKEND_URL=https://nasaexplorer-production.up.railway.app/
+```
+
+If no environment variable is set, the application will use the deployed backend URL by default.
+
 ## Installation
 
 ### Backend Setup

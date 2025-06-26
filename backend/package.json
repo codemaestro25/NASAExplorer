@@ -2,13 +2,14 @@
   "name": "nasa-explorer",
   "version": "1.0.0",
   "description": "backend of the nasa explorer as a part of the bounce insights assessment",
-  "main": "index.js",
+  "main": "dist/index.js",
   "scripts": {
     "start": "node dist/index.js",
     "dev": "nodemon src/index.ts",
     "build": "tsc",
     "watch": "tsc -w",
-    "test": "jest"
+    "test": "jest",
+    "postinstall": "npm run build"
   },
   "author": "devesh sanjay narkhede",
   "license": "ISC",

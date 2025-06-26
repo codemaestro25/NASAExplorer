@@ -8,7 +8,8 @@ import type {
 } from '../types/nasa';
 
 // Backend API Base URL
-const BACKEND_API_BASE = 'http://localhost:3000';
+// Use environment variable if available, otherwise fall back to deployed URL
+const BACKEND_API_BASE = import.meta.env.VITE_BACKEND_URL || 'https://nasaexplorer-production.up.railway.app/';
 
 // Create axios instance with base configuration
 const backendApi = axios.create({
