@@ -9,7 +9,6 @@
     "build": "tsc",
     "watch": "tsc -w",
     "test": "jest",
-    "postinstall": "npm run build",
     "prestart": "npm run build",
     "vercel-build": "npm run build"
   },
