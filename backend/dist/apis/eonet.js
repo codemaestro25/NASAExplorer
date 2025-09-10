@@ -17,7 +17,6 @@ exports.getEonetEvents = getEonetEvents;
 const axios_1 = __importDefault(require("axios"));
 const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
-const NASA_API_KEY = '8j7gw73snXCD8lpaEe5nSBZSeFTUV8Qn6umZuod1';
 const NASA_EONET_URL = 'https://eonet.gsfc.nasa.gov/api/v3/events';
 const NASA_EONET_CATEGORIES_URL = 'https://eonet.gsfc.nasa.gov/api/v3/categories';
 const NASA_EONET_SOURCES_URL = 'https://eonet.gsfc.nasa.gov/api/v3/sources';
@@ -79,11 +78,7 @@ const eonetSources = (req, res) => __awaiter(void 0, void 0, void 0, function* (
 exports.eonetSources = eonetSources;
 function getEonetEvents() {
     return __awaiter(this, void 0, void 0, function* () {
-        const response = yield axios_1.default.get(NASA_EONET_URL, {
-            params: {
-                api_key: NASA_API_KEY
-            }
-        });
+        const response = yield axios_1.default.get(NASA_EONET_URL);
         return response.data;
     });
 }

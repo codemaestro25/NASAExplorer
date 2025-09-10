@@ -4,7 +4,6 @@ import { Request, Response } from 'express';
 
 dotenv.config();
 
-const NASA_API_KEY = '8j7gw73snXCD8lpaEe5nSBZSeFTUV8Qn6umZuod1';
 const NASA_EONET_URL = 'https://eonet.gsfc.nasa.gov/api/v3/events';
 const NASA_EONET_CATEGORIES_URL = 'https://eonet.gsfc.nasa.gov/api/v3/categories';
 const NASA_EONET_SOURCES_URL = 'https://eonet.gsfc.nasa.gov/api/v3/sources';
@@ -71,10 +70,6 @@ export const eonetSources = async (req: Request, res: Response): Promise<void> =
 };
 
 export async function getEonetEvents(): Promise<any> {
-    const response = await axios.get(NASA_EONET_URL, {
-        params: {
-            api_key: NASA_API_KEY
-        }
-    });
+    const response = await axios.get(NASA_EONET_URL);
     return response.data;
 } 

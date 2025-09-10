@@ -22,7 +22,7 @@ app.get('/health', (req, res) => {
         environment: process.env.NODE_ENV || 'development'
     });
 });
-// Root endpoint
+// root endpoint (deploymenmt debug)
 app.get('/', (req, res) => {
     res.json({
         message: 'NASA Explorer Backend API',
@@ -52,17 +52,22 @@ app.use('*', (req, res) => {
         path: req.originalUrl
     });
 });
-app.listen(port, '0.0.0.0', () => {
-    console.log(`🚀 Server is running on port ${port}`);
-    console.log(`📡 Environment: ${process.env.NODE_ENV || 'development'}`);
-    console.log(`🌐 Health check: http://localhost:${port}/health`);
-});
-// Handle uncaught exceptions
-process.on('uncaughtException', (err) => {
-    console.error('Uncaught Exception:', err);
-    process.exit(1);
-});
-process.on('unhandledRejection', (reason, promise) => {
-    console.error('Unhandled Rejection at:', promise, 'reason:', reason);
-    process.exit(1);
-});
+// Export the app for Vercel
+exports.default = app;
+// Only start the server if not in Vercel environment
+if (process.env.NODE_ENV !== 'production' || process.env.VERCEL !== '1') {
+    app.listen(port, '0.0.0.0', () => {
+        console.log(`Server is running on port ${port}`);
+        console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+        console.log(`Health check: http://localhost:${port}/health`);
+    });
+    // Handle uncaught exceptions
+    process.on('uncaughtException', (err) => {
+        console.error('Uncaught Exception:', err);
+        process.exit(1);
+    });
+    process.on('unhandledRejection', (reason, promise) => {
+        console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+        process.exit(1);
+    });
+}

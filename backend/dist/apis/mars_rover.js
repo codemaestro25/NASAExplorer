@@ -17,7 +17,7 @@ exports.getMarsRoverPhotos = getMarsRoverPhotos;
 const axios_1 = __importDefault(require("axios"));
 const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
-const NASA_API_KEY = '8j7gw73snXCD8lpaEe5nSBZSeFTUV8Qn6umZuod1';
+const NASA_API_KEY = process.env.NASA_API_KEY;
 const BASE_URL = 'https://api.nasa.gov/mars-photos/api/v1/rovers';
 const BASE_URL_MANIFEST = 'https://api.nasa.gov/mars-photos/api/v1';
 const getManifest = (rover) => __awaiter(void 0, void 0, void 0, function* () {
