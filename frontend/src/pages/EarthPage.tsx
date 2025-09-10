@@ -429,6 +429,66 @@ const EarthPage: React.FC = () => {
         
         <APODPage />
         
+        {/* Footer */}
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            py: 3,
+            px: 2,
+            background: 'rgba(10, 10, 20, 0.8)',
+            backdropFilter: 'blur(10px)',
+          }}
+        >
+          <Typography
+            variant="body2"
+            color="text.secondary"
+            sx={{
+              fontFamily: "'Fira Mono', 'Menlo', 'Monaco', 'Consolas', 'Liberation Mono', 'Courier New', monospace",
+              fontSize: '0.875rem',
+              opacity: 0.7,
+            }}
+          >
+            crafted by{' '}
+            <Box
+              component="a"
+              href="https://deveshnarkhede.netlify.app/"
+              target="_blank"
+              rel="noopener noreferrer"
+              sx={{
+                color: 'primary.main',
+                textDecoration: 'none',
+                position: 'relative',
+                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                cursor: 'pointer',
+                '&:hover': {
+                  color: 'primary.light',
+                  transform: 'translateY(-2px)',
+                  textShadow: '0 0 20px rgba(25, 118, 210, 0.6)',
+                  '&::after': {
+                    width: '100%',
+                    opacity: 1,
+                  },
+                },
+                '&::after': {
+                  content: '""',
+                  position: 'absolute',
+                  bottom: '-2px',
+                  left: 0,
+                  width: '0%',
+                  height: '2px',
+                  background: 'linear-gradient(90deg, #1976d2, #42a5f5, #1976d2)',
+                  borderRadius: '1px',
+                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                  opacity: 0,
+                },
+              }}
+            >
+              Devesh Sanjay Narkhede
+            </Box>
+          </Typography>
+        </Box>
       
       </PageContainer>
       
