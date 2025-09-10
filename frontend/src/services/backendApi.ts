@@ -9,9 +9,9 @@ import type {
 
 // Backend API Base URL
 // Use environment variable if available, otherwise fall back to deployed URL
-// const BACKEND_API_BASE = import.meta.env.BACKEND_URL || 'https://nasaexplorer-production.up.railway.app/';
+const BACKEND_API_BASE = import.meta.env.BACKEND_URL || 'https://nasaexplorer-production.up.railway.app/';
 
-const BACKEND_API_BASE = import.meta.env.BACKEND_URL || 'https://nasa-explorer-blond.vercel.app/';
+// const BACKEND_API_BASE = import.meta.env.BACKEND_URL || 'https://nasa-explorer-blond.vercel.app/';
 
 // Create axios instance with base configuration
 const backendApi = axios.create({
