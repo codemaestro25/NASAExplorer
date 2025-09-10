@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo, useRef } from 'react';
+import React, { useEffect, useState, useMemo, useRef, Suspense, lazy } from 'react';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Card from '@mui/material/Card';
@@ -18,6 +18,7 @@ import { useParams } from 'react-router-dom';
 import Layout from '../components/common/Layout';
 import PhotoModal from '../components/common/PhotoModal';
 import type { PhotoModalRef } from '../components/common/PhotoModal';
+import LoadingSpinner from '../components/common/LoadingSpinner';
 import { marsRoverApi } from '../services/backendApi';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, useGLTF } from '@react-three/drei';
@@ -71,10 +72,34 @@ const roverModels: Record<string, string> = {
   spirit: '/models/spirit_and_oppurtunity.glb',
 };
 
-function RoverModel({ url, roverId }: { url: string; roverId: string }) {
-  const { scene } = useGLTF(url);
+// 3D Model Component with loading state
+function RoverModel({ url, roverId, onLoad, onError }: { 
+  url: string; 
+  roverId: string; 
+  onLoad?: () => void;
+  onError?: (error: string) => void;
+}) {
+  const { scene, error } = useGLTF(url);
   
-  //  error handling and loading state
+  React.useEffect(() => {
+    if (error && onError) {
+      onError(`Failed to load 3D model: ${error.message || 'Unknown error'}`);
+    } else if (scene && onLoad) {
+      onLoad();
+    }
+  }, [scene, error, onLoad, onError]);
+  
+  if (error) {
+    return (
+      <group>
+        <mesh position={[0, 0, 0]}>
+          <boxGeometry args={[1, 0.5, 1]} />
+          <meshBasicMaterial color="#666" />
+        </mesh>
+      </group>
+    );
+  }
+  
   if (!scene) {
     return null;
   }
@@ -121,9 +146,11 @@ function RoverModel({ url, roverId }: { url: string; roverId: string }) {
   );
 }
 
-// Preload the models
-useGLTF.preload('/models/curiosity.glb');
-useGLTF.preload('/models/spirit_and_oppurtunity.glb');
+// Lazy loaded 3D Model Container
+const LazyRoverModel = lazy(() => Promise.resolve({ default: RoverModel }));
+
+// Note: Removed preload calls to prevent blocking initial page render
+// Models will be loaded on-demand when the 3D canvas is rendered
 
 // Static data for rover cameras based on the provided image
 const roverCameraData: Record<string, { name: string; full_name: string }[]> = {
@@ -182,6 +209,8 @@ const MarsRoverDetailPage: React.FC = () => {
   const [camera, setCamera] = useState('');
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [modelLoading, setModelLoading] = useState(true);
+  const [modelError, setModelError] = useState<string | null>(null);
   const photoModalRef = useRef<PhotoModalRef | null>(null);
   const topRef = useRef<HTMLDivElement>(null);
 
@@ -194,6 +223,10 @@ const MarsRoverDetailPage: React.FC = () => {
 
   useEffect(() => {
     if (roverId) {
+      // Reset model loading state
+      setModelLoading(true);
+      setModelError(null);
+      
       // Fetch initial manifest data when rover changes
       fetchData(true);
       setEarthDate('');
@@ -205,6 +238,33 @@ const MarsRoverDetailPage: React.FC = () => {
     }
     // eslint-disable-next-line
   }, [roverId]);
+
+  // Handle 3D model loading
+  useEffect(() => {
+    if (roverId && roverModels[roverId]) {
+      setModelLoading(true);
+      setModelError(null);
+      
+      // Set a maximum loading time to prevent infinite loading
+      const maxLoadingTimer = setTimeout(() => {
+        setModelLoading(false);
+      }, 10000); // 10 seconds max
+      
+      return () => clearTimeout(maxLoadingTimer);
+    }
+  }, [roverId]);
+
+  // Handle model loading completion
+  const handleModelLoad = () => {
+    setModelLoading(false);
+    setModelError(null);
+  };
+
+  // Handle model loading error
+  const handleModelError = (error: string) => {
+    setModelLoading(false);
+    setModelError(error);
+  };
 
   const fetchData = async (isInitialLoad = false, isManualFetch = false) => {
     if (!roverId) return;
@@ -355,19 +415,109 @@ const MarsRoverDetailPage: React.FC = () => {
                 </Grid>
               </Grid>
             ) : (
-              <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', minHeight: '500px' }}>
-                {loading ? <CircularProgress /> : error ? <Alert severity="error">{error}</Alert> : null}
+              <Box sx={{ 
+                display: 'flex', 
+                justifyContent: 'center', 
+                alignItems: 'center', 
+                height: '100%', 
+                minHeight: '500px',
+                flexDirection: 'column',
+                gap: 2
+              }}>
+                {loading ? (
+                  <>
+                    <LoadingSpinner size={48} color="#4A90E2" />
+                    <Typography variant="body2" color="text.secondary" sx={{ fontFamily: 'monospace' }}>
+                      Loading mission data...
+                    </Typography>
+                  </>
+                ) : error ? (
+                  <Alert severity="error" sx={{ maxWidth: '100%' }}>
+                    {error}
+                  </Alert>
+                ) : null}
               </Box>
             )}
           </Box>
 
           {/* Right: 3D Model */}
           <Box sx={{ width: { xs: '100%', md: '65%' }, top: '100px' }}>
-            <Box sx={{ width: '100%', height: { xs: 500, md: 600 }, background: 'rgba(26,26,46,0.7)', borderRadius: 4, boxShadow: 6 }}>
+            <Box sx={{ 
+              width: '100%', 
+              height: { xs: 500, md: 600 }, 
+              background: 'rgba(26,26,46,0.7)', 
+              borderRadius: 4, 
+              boxShadow: 6,
+              position: 'relative',
+              overflow: 'hidden'
+            }}>
+              {/* Loading overlay */}
+              {modelLoading && (
+                <Box
+                  sx={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    background: 'rgba(26,26,46,0.9)',
+                    zIndex: 10,
+                    gap: 2
+                  }}
+                >
+                  <LoadingSpinner size={48} color="#4A90E2" />
+                  <Typography variant="body2" color="text.secondary" sx={{ fontFamily: 'monospace' }}>
+                    Loading 3D Model...
+                  </Typography>
+                </Box>
+              )}
+              
+              {/* Error state */}
+              {modelError && (
+                <Box
+                  sx={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    background: 'rgba(26,26,46,0.9)',
+                    zIndex: 10,
+                    gap: 2,
+                    p: 2
+                  }}
+                >
+                  <Typography variant="h6" color="error" textAlign="center">
+                    Failed to load 3D model
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary" textAlign="center">
+                    {modelError}
+                  </Typography>
+                </Box>
+              )}
+              
+              {/* 3D Canvas */}
               <Canvas camera={{ position: [2.5, 1.5, 2.5], fov: 50 }} style={{ width: '100%', height: '100%' }}>
                 <ambientLight intensity={0.7} />
                 <directionalLight position={[5, 3, 5]} intensity={1} />
-                {roverId && roverModels[roverId] && <RoverModel url={roverModels[roverId]} roverId={roverId} />}
+                {roverId && roverModels[roverId] && (
+                  <Suspense fallback={null}>
+                    <RoverModel 
+                      url={roverModels[roverId]} 
+                      roverId={roverId}
+                      onLoad={handleModelLoad}
+                      onError={handleModelError}
+                    />
+                  </Suspense>
+                )}
                 <OrbitControls enablePan={true} enableZoom={true} enableRotate={true} />
               </Canvas>
             </Box>
@@ -437,12 +587,24 @@ const MarsRoverDetailPage: React.FC = () => {
             </Button>
           </Box>
           {loading ? (
-            <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%', mt: 4 }}>
-              <CircularProgress />
+            <Box sx={{ 
+              display: 'flex', 
+              justifyContent: 'center', 
+              alignItems: 'center',
+              width: '100%', 
+              mt: 4,
+              flexDirection: 'column',
+              gap: 2,
+              py: 4
+            }}>
+              <LoadingSpinner size={48} color="#4A90E2" />
+              <Typography variant="body2" color="text.secondary" sx={{ fontFamily: 'monospace' }}>
+                Fetching photos from Mars...
+              </Typography>
             </Box>
           ) : error ? (
             <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%', mt: 4 }}>
-              <Alert severity="error">{error}</Alert>
+              <Alert severity="error" sx={{ maxWidth: '100%' }}>{error}</Alert>
             </Box>
           ) : (
             <>
