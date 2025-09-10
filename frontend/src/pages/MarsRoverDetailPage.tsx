@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo, useRef, Suspense, lazy } from 'react';
+import React, { useEffect, useState, useMemo, useRef, Suspense } from 'react';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Card from '@mui/material/Card';
@@ -9,7 +9,6 @@ import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import InputLabel from '@mui/material/InputLabel';
 import FormControl from '@mui/material/FormControl';
-import CircularProgress from '@mui/material/CircularProgress';
 import Alert from '@mui/material/Alert';
 import Grid from '@mui/material/Grid';
 import Pagination from '@mui/material/Pagination';
@@ -79,26 +78,25 @@ function RoverModel({ url, roverId, onLoad, onError }: {
   onLoad?: () => void;
   onError?: (error: string) => void;
 }) {
-  const { scene, error } = useGLTF(url);
+  const { scene } = useGLTF(url);
   
   React.useEffect(() => {
-    if (error && onError) {
-      onError(`Failed to load 3D model: ${error.message || 'Unknown error'}`);
-    } else if (scene && onLoad) {
+    if (scene && onLoad) {
       onLoad();
     }
-  }, [scene, error, onLoad, onError]);
+  }, [scene, onLoad]);
   
-  if (error) {
-    return (
-      <group>
-        <mesh position={[0, 0, 0]}>
-          <boxGeometry args={[1, 0.5, 1]} />
-          <meshBasicMaterial color="#666" />
-        </mesh>
-      </group>
-    );
-  }
+  // Handle loading errors with try-catch in useEffect
+  React.useEffect(() => {
+    const handleError = (event: ErrorEvent) => {
+      if (event.message.includes(url) && onError) {
+        onError(`Failed to load 3D model: ${event.message}`);
+      }
+    };
+    
+    window.addEventListener('error', handleError);
+    return () => window.removeEventListener('error', handleError);
+  }, [url, onError]);
   
   if (!scene) {
     return null;
@@ -146,8 +144,6 @@ function RoverModel({ url, roverId, onLoad, onError }: {
   );
 }
 
-// Lazy loaded 3D Model Container
-const LazyRoverModel = lazy(() => Promise.resolve({ default: RoverModel }));
 
 // Note: Removed preload calls to prevent blocking initial page render
 // Models will be loaded on-demand when the 3D canvas is rendered
