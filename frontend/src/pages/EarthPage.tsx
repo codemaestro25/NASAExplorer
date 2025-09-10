@@ -91,7 +91,7 @@ const EarthPage: React.FC = () => {
     try {
       setLoading(true);
       setError(null);
-      const response = await eonetApi.getEvents({ days: 30, limit: 50 });
+      const response = await eonetApi.getEvents({ days: 30, limit: 200 });
       setEvents(response.events);
     } catch (err) {
       setError(`Failed to fetch Earth events : ${err}`);
